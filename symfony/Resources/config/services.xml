@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="import_product_url_rewrite.utility.class.name" class="TechDivision\Import\Product\UrlRewrite\Utils\SqlStatements"/>
+
+        <service id="import_product_url_rewrite.repository.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository">
+            <argument type="service" id="connection"/>
+            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+        </service>
+
+        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryCreateProcessor">
+            <argument type="service" id="connection"/>
+            <argument type="service" id="iimport_product_url_rewrite.utility.class.name"/>
+        </service>
+        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryDeleteProcessor">
+            <argument type="service" id="connection"/>
+            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+        </service>
+        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.update" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryUpdateProcessor">
+            <argument type="service" id="connection"/>
+            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+        </service>
+
+        <service id="import_product_url_rewrite.action.url.rewrite.product.category" class="TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction">
+            <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create"/>
+            <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.update"/>
+            <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete"/>
+        </service>
+
+        <service id="import_product_url_rewrite.processor.product.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessor">
+            <argument type="service" id="connection"/>
+            <argument type="service" id="import_product.repository.product.varchar"/>
+            <argument type="service" id="import_product_url_rewrite.repository.url.rewrite"/>
+            <argument type="service" id="import_product_url_rewrite.repository.url.rewrite.product.category"/>
+            <argument type="service" id="import.action.url.rewrite"/>
+            <argument type="service" id="import_product_url_rewrite.action.url.rewrite.product.category"/>
+        </service>
+        
+        <service id="import_product_url_rewrite.observer.url.key" class="TechDivision\Import\Product\UrlRewrite\Observers\UrlKeyObserver">
+            <argument type="service" id="import_product.filter.convert.literal.url"/>
+        </service>
+        <service id="import_product_url_rewrite.observer.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver">
+            <argument type="service" id="import_product_url_rewrite.processor.product.url.rewrite"/>
+        </service>
+        <service id="import_product_url_rewrite.observer.url.rewrite.update" class="TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteUpdateObserver">
+            <argument type="service" id="import_product_url_rewrite.processor.product.url.rewrite"/>
+        </service>
+
+        <service id="import_product_url_rewrite.subject.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Subjects\UrlRewriteSubject" shared="false">
+            <argument type="service" id="import.processor.registry"/>
+            <argument type="service" id="import.generator.core.config.data.uid"/>
+            <argument type="service" id="loggers"/>
+        </service>
+
+    </services>
+
+</container>

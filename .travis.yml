@@ -1,0 +1,21 @@
+language: php
+
+php:
+  - 7.0
+  - 5.6
+  
+before_install:
+  - pecl install xdebug
+  - phpenv rehash
+  - wget https://scrutinizer-ci.com/ocular.phar
+
+before_script:
+  - composer selfupdate
+
+script:
+  - composer install
+  - vendor/bin/robo build
+  - php ocular.phar code-coverage:upload --format=php-clover $TRAVIS_BUILD_DIR/target/reports/unit/clover.xml
+
+notifications:
+  email: t.wagner@techdivision.com
