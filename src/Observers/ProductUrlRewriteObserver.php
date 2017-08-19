@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\Import\Product\UrlRewrite\Observers\ProductMediaObserver
+ * TechDivision\Import\Product\UrlRewrite\Observers\ProductUrlRewriteObserver
  *
  * NOTICE OF LICENSE
  *
@@ -20,11 +20,12 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
+use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
 
 /**
- * Observer that extracts theproduct's media data from a CSV file to be added to media specifi CSV file.
+ * Observer that extracts the URL rewrite data to a specific CSV file.
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
@@ -57,68 +58,63 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     protected function process()
     {
 
-        // initialize the array for the artefacts
+        // initialize the array for the artefacts and the store view codes
         $this->artefacts = array();
+        $storeViewCodes = array();
 
-        // process the images/additional images
-        $this->processImages();
-        $this->processAdditionalImages();
+        // load the SKU from the row
+        $sku = $this->getValue(ColumnKeys::SKU);
+
+        // prepare the store view code
+        $this->getSubject()->prepareStoreViewCode();
+
+        // try to load the store view code
+        $storeViewCode = $this->getSubject()->getStoreViewCode(StoreViewCodes::ADMIN);
+
+        if ($storeViewCode === StoreViewCodes::ADMIN) {
+
+            $websiteCodes = $this->getValue(ColumnKeys::PRODUCT_WEBSITES, array(), array($this, 'extract'));
+
+            foreach ($websiteCodes as $websiteCode) {
+                $storeViewCodes = array_merge($storeViewCodes, $this->getStoreViewCodesByWebsiteCode($websiteCode));
+            }
+
+        } else {
+            array_push($storeViewCodes, $storeViewCode);
+        }
+
+        // iterate over the available image fields
+        foreach ($storeViewCodes as $storeViewCode) {
+            // prepare the new base image
+            $artefact = $this->newArtefact(
+                array(
+                    ColumnKeys::SKU                => $sku,
+                    ColumnKeys::STORE_VIEW_CODE    => $storeViewCode
+                ),
+                array(
+                    ColumnKeys::SKU                => ColumnKeys::SKU,
+                    ColumnKeys::STORE_VIEW_CODE    => ColumnKeys::STORE_VIEW_CODE
+                )
+            );
+
+            // append the base image to the artefacts
+            $this->artefacts[] = $artefact;
+        }
 
         // append the artefacts that has to be exported to the subject
         $this->addArtefacts($this->artefacts);
     }
 
     /**
-     * Parses the column and exports the image data to a separate file.
+     * Returns an array with the codes of the store views related with the passed website code.
      *
-     * @return void
+     * @param string $websiteCode The code of the website to return the store view codes for
+     *
+     * @return array The array with the matching store view codes
      */
-    protected function processImages()
+    protected function getStoreViewCodesByWebsiteCode($websiteCode)
     {
-
-        // load the store view code
-        $storeViewCode = $this->getValue(ColumnKeys::STORE_VIEW_CODE);
-        $attributeSetCode = $this->getValue(ColumnKeys::ATTRIBUTE_SET_CODE);
-
-        // load the parent SKU from the row
-        $parentSku = $this->getValue(ColumnKeys::SKU);
-
-        // iterate over the available image fields
-        foreach ($this->getImageTypes() as $imageColumnName => $labelColumnName) {
-            // query whether or not, we've a base image
-            if ($image = $this->getValue($imageColumnName)) {
-                // initialize the label text
-                $labelText = $this->getDefaultImageLabel();
-
-                // query whether or not a custom label text has been passed
-                if ($this->hasValue($labelColumnName)) {
-                    $this->getValue($labelColumnName);
-                }
-
-                // prepare the new base image
-                $artefact = $this->newArtefact(
-                    array(
-                        ColumnKeys::STORE_VIEW_CODE    => $storeViewCode,
-                        ColumnKeys::ATTRIBUTE_SET_CODE => $attributeSetCode,
-                        ColumnKeys::IMAGE_PARENT_SKU   => $parentSku,
-                        ColumnKeys::IMAGE_PATH         => $image,
-                        ColumnKeys::IMAGE_PATH_NEW     => $image,
-                        ColumnKeys::IMAGE_LABEL        => $labelText
-                    ),
-                    array(
-                        ColumnKeys::STORE_VIEW_CODE    => ColumnKeys::STORE_VIEW_CODE,
-                        ColumnKeys::ATTRIBUTE_SET_CODE => ColumnKeys::ATTRIBUTE_SET_CODE,
-                        ColumnKeys::IMAGE_PARENT_SKU   => ColumnKeys::SKU,
-                        ColumnKeys::IMAGE_PATH         => $imageColumnName,
-                        ColumnKeys::IMAGE_PATH_NEW     => $imageColumnName,
-                        ColumnKeys::IMAGE_LABEL        => $labelColumnName
-                    )
-                );
-
-                // append the base image to the artefacts
-                $this->artefacts[] = $artefact;
-            }
-        }
+        return $this->getSubject()->getStoreViewCodesByWebsiteCode($websiteCode);
     }
 
     /**

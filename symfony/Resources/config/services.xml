@@ -40,6 +40,7 @@
             <argument type="service" id="import_product_url_rewrite.action.url.rewrite.product.category"/>
         </service>
         
+        <service id="import_product_url_rewrite.observer.product.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Observers\ProductUrlRewriteObserver"/>
         <service id="import_product_url_rewrite.observer.url.key" class="TechDivision\Import\Product\UrlRewrite\Observers\UrlKeyObserver">
             <argument type="service" id="import_product.filter.convert.literal.url"/>
         </service>
