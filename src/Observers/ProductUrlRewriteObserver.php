@@ -71,10 +71,12 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
         // try to load the store view code
         $storeViewCode = $this->getSubject()->getStoreViewCode(StoreViewCodes::ADMIN);
 
+        // query whether or not we've a store view code
         if ($storeViewCode === StoreViewCodes::ADMIN) {
-
+            // if not, load the websites the product is related with
             $websiteCodes = $this->getValue(ColumnKeys::PRODUCT_WEBSITES, array(), array($this, 'extract'));
 
+            // load the store view codes of all websites
             foreach ($websiteCodes as $websiteCode) {
                 $storeViewCodes = array_merge($storeViewCodes, $this->getStoreViewCodesByWebsiteCode($websiteCode));
             }
