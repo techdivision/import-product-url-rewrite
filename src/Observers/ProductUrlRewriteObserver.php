@@ -74,7 +74,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
         // query whether or not we've a store view code
         if ($storeViewCode === StoreViewCodes::ADMIN) {
             // if not, load the websites the product is related with
-            $websiteCodes = $this->getValue(ColumnKeys::PRODUCT_WEBSITES, array(), array($this, 'extract'));
+            $websiteCodes = $this->getValue(ColumnKeys::PRODUCT_WEBSITES, array(), array($this, 'explode'));
 
             // load the store view codes of all websites
             foreach ($websiteCodes as $websiteCode) {
@@ -87,20 +87,49 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
 
         // iterate over the available image fields
         foreach ($storeViewCodes as $storeViewCode) {
-            // prepare the new base image
-            $artefact = $this->newArtefact(
-                array(
-                    ColumnKeys::SKU                => $sku,
-                    ColumnKeys::STORE_VIEW_CODE    => $storeViewCode
-                ),
-                array(
-                    ColumnKeys::SKU                => ColumnKeys::SKU,
-                    ColumnKeys::STORE_VIEW_CODE    => ColumnKeys::STORE_VIEW_CODE
-                )
-            );
+            // iterate over the store view codes and query if artefacts are already available
+            if ($this->hasArtefactsByTypeAndEntityId(ProductUrlRewriteObserver::ARTEFACT_TYPE, $lastEntityId = $this->getSubject()->getLastEntityId())) {
+                // if yes, load the artefacs
+                $this->artefacts = $this->getArtefactsByTypeAndEntityId(ProductUrlRewriteObserver::ARTEFACT_TYPE, $lastEntityId);
 
-            // append the base image to the artefacts
-            $this->artefacts[] = $artefact;
+                // override the existing data with the store view specific one
+                for ($i = 0; $i < sizeof($this->artefacts); $i++) {
+                    if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
+                        // update name and URL key
+                        $this->artefacts[$i][ColumnKeys::NAME]    = $this->getValue(ColumnKeys::NAME);
+                        $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
+
+                        // also update filename and line number
+                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_FILENAME] = $this->getFilename();
+                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getLineNumber();
+                    }
+                }
+
+            } else {
+                // if no arefacts are available, append new data
+                $artefact = $this->newArtefact(
+                    array(
+                        ColumnKeys::SKU                => $sku,
+                        ColumnKeys::STORE_VIEW_CODE    => $storeViewCode,
+                        ColumnKeys::CATEGORIES         => $this->getValue(ColumnKeys::CATEGORIES),
+                        ColumnKeys::PRODUCT_WEBSITES   => $this->getValue(ColumnKeys::PRODUCT_WEBSITES),
+                        ColumnKeys::NAME               => $this->getValue(ColumnKeys::NAME),
+                        ColumnKeys::VISIBILITY         => $this->getValue(ColumnKeys::VISIBILITY),
+                        ColumnKeys::URL_KEY            => $this->getValue(ColumnKeys::URL_KEY)
+                    ),
+                    array(
+                        ColumnKeys::SKU                => ColumnKeys::SKU,
+                        ColumnKeys::STORE_VIEW_CODE    => ColumnKeys::STORE_VIEW_CODE,
+                        ColumnKeys::CATEGORIES         => ColumnKeys::CATEGORIES,
+                        ColumnKeys::PRODUCT_WEBSITES   => ColumnKeys::PRODUCT_WEBSITES,
+                        ColumnKeys::NAME               => ColumnKeys::NAME,
+                        ColumnKeys::URL_KEY            => ColumnKeys::URL_KEY,
+                    )
+                );
+
+                // append the base image to the artefacts
+                $this->artefacts[] = $artefact;
+            }
         }
 
         // append the artefacts that has to be exported to the subject
@@ -117,6 +146,33 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     protected function getStoreViewCodesByWebsiteCode($websiteCode)
     {
         return $this->getSubject()->getStoreViewCodesByWebsiteCode($websiteCode);
+    }
+
+    /**
+     * Queries whether or not artefacts for the passed type and entity ID are available.
+     *
+     * @param string $type     The artefact type, e. g. configurable
+     * @param string $entityId The entity ID to return the artefacts for
+     *
+     * @return boolean TRUE if artefacts are available, else FALSE
+     */
+    protected function hasArtefactsByTypeAndEntityId($type, $entityId)
+    {
+        return $this->getSubject()->hasArtefactsByTypeAndEntityId($type, $entityId);
+    }
+
+    /**
+     * Return the artefacts for the passed type and entity ID.
+     *
+     * @param string $type     The artefact type, e. g. configurable
+     * @param string $entityId The entity ID to return the artefacts for
+     *
+     * @return array The array with the artefacts
+     * @throws \Exception Is thrown, if no artefacts are available
+     */
+    protected function getArtefactsByTypeAndEntityId($type, $entityId)
+    {
+        return $this->getSubject()->getArtefactsByTypeAndEntityId($type, $entityId);
     }
 
     /**

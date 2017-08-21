@@ -25,8 +25,8 @@ use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
-use TechDivision\Import\Product\Services\ProductBunchProcessorInterface;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
+use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
 
 /**
  * Observer that creates/updates the product's URL rewrites.
@@ -99,18 +99,18 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     /**
      * The product bunch processor instance.
      *
-     * @var \TechDivision\Import\Product\Services\ProductBunchProcessorInterface
+     * @var \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface
      */
-    protected $productBunchProcessor;
+    protected $productUrlRewriteProcessor;
 
     /**
-     * Initialize the observer with the passed product bunch processor instance.
+     * Initialize the observer with the passed product URL rewrite processor instance.
      *
-     * @param \TechDivision\Import\Product\Services\ProductBunchProcessorInterface $productBunchProcessor The product bunch processor instance
+     * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
      */
-    public function __construct(ProductBunchProcessorInterface $productBunchProcessor)
+    public function __construct(ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor)
     {
-        $this->productBunchProcessor = $productBunchProcessor;
+        $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
     }
 
     /**
@@ -118,9 +118,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      *
      * @return \TechDivision\Import\Product\Services\ProductBunchProcessorInterface The product bunch processor instance
      */
-    protected function getProductBunchProcessor()
+    protected function getProductUrlRewriteProcessor()
     {
-        return $this->productBunchProcessor;
+        return $this->productUrlRewriteProcessor;
     }
 
     /**
@@ -191,15 +191,27 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 // initialize URL rewrite and catagory ID
                 $this->categoryId = $categoryId;
                 $this->entityId = $urlRewrite[MemberNames::ENTITY_ID];
-                $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
 
-                // initialize and persist the URL rewrite product => category relation
-                $urlRewriteProductCategory = $this->initializeUrlRewriteProductCategory(
-                    $this->prepareUrlRewriteProductCategoryAttributes()
-                );
+                try {
+                    // persist the URL rewrite
+                    $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
 
-                // persist the URL rewrite product category relation
-                $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+                    // initialize and persist the URL rewrite product => category relation
+                    $urlRewriteProductCategory = $this->initializeUrlRewriteProductCategory(
+                        $this->prepareUrlRewriteProductCategoryAttributes()
+                    );
+
+                    // persist the URL rewrite product category relation
+                    $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+
+                } catch (\Exception $e) {
+                    // query whether or not debug mode has been enabled
+                    if ($this->getSubject()->isDebugMode()) {
+                        $this->getSubject()->getSystemLogger()->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                    } else {
+                        throw $e;
+                    }
+                }
             }
         }
 
@@ -481,29 +493,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     }
 
     /**
-     * Return's TRUE, if the passed URL key varchar value IS related with the actual PK.
-     *
-     * @param array $productVarcharAttribute The varchar value to check
-     *
-     * @return boolean TRUE if the URL key is related, else FALSE
-     */
-    protected function isUrlKeyOf(array $productVarcharAttribute)
-    {
-        return $this->getSubject()->isUrlKeyOf($productVarcharAttribute);
-    }
-
-    /**
-     * Return's the entity type for the configured entity type code.
-     *
-     * @return array The requested entity type
-     * @throws \Exception Is thrown, if the requested entity type is not available
-     */
-    protected function getEntityType()
-    {
-        return $this->getSubject()->getEntityType();
-    }
-
-    /**
      * Return's the root category for the actual view store.
      *
      * @return array The store's root category
@@ -562,7 +551,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      */
     protected function persistUrlRewrite($row)
     {
-        return $this->getProductBunchProcessor()->persistUrlRewrite($row);
+        return $this->getProductUrlRewriteProcessor()->persistUrlRewrite($row);
     }
 
     /**
@@ -574,7 +563,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      */
     protected function persistUrlRewriteProductCategory($row)
     {
-        return $this->getProductBunchProcessor()->persistUrlRewriteProductCategory($row);
+        return $this->getProductUrlRewriteProcessor()->persistUrlRewriteProductCategory($row);
     }
 
     /**

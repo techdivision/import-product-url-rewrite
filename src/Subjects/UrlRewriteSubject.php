@@ -20,7 +20,7 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Subjects;
 
-use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
+use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\Subjects\AbstractProductSubject;
 
 /**
@@ -36,14 +36,83 @@ class UrlRewriteSubject extends AbstractProductSubject
 {
 
     /**
-     * Return's TRUE, if the passed URL key varchar value IS related with the actual PK.
+     * The mapping for the SKU => visibility.
      *
-     * @param array $productVarcharAttribute The varchar value to check
-     *
-     * @return boolean TRUE if the URL key is related, else FALSE
+     * @var array
      */
-    public function isUrlKeyOf(array $productVarcharAttribute)
+    protected $entityIdVisibilityIdMapping = array();
+
+    /**
+     * The array with the available visibility keys.
+     *
+     * @var array
+     */
+    protected $availableVisibilities = array(
+        'Not Visible Individually' => VisibilityKeys::VISIBILITY_NOT_VISIBLE,
+        'Catalog'                  => VisibilityKeys::VISIBILITY_IN_CATALOG,
+        'Search'                   => VisibilityKeys::VISIBILITY_IN_SEARCH,
+        'Catalog, Search'          => VisibilityKeys::VISIBILITY_BOTH
+    );
+
+    /**
+     * Return's the visibility key for the passed visibility string.
+     *
+     * @param string $visibility The visibility string to return the key for
+     *
+     * @return integer The requested visibility key
+     * @throws \Exception Is thrown, if the requested visibility is not available
+     */
+    public function getVisibilityIdByValue($visibility)
     {
-        return ($productVarcharAttribute[MemberNames::ENTITY_ID] === $this->getLastEntityId()) && ((integer) $productVarcharAttribute[MemberNames::STORE_ID] === $this->getRowStoreId());
+
+        // query whether or not, the requested visibility is available
+        if (isset($this->availableVisibilities[$visibility])) {
+            // load the visibility ID, add the mapping and return the ID
+            return $this->availableVisibilities[$visibility];
+        }
+
+        // throw an exception, if not
+        throw new \Exception(
+            $this->appendExceptionSuffix(
+                sprintf('Found invalid visibility %s', $visibility)
+            )
+        );
+    }
+
+    /**
+     * Return's the visibility for the passed entity ID, if it already has been mapped. The mapping will be created
+     * by calling <code>\TechDivision\Import\Product\Subjects\BunchSubject::getVisibilityIdByValue</code> which will
+     * be done by the <code>\TechDivision\Import\Product\Callbacks\VisibilityCallback</code>.
+     *
+     * @return integer The visibility ID
+     * @throws \Exception Is thrown, if the entity ID has not been mapped
+     * @see \TechDivision\Import\Product\Subjects\BunchSubject::getVisibilityIdByValue()
+     */
+    public function getEntityIdVisibilityIdMapping()
+    {
+
+        // query whether or not the SKU has already been mapped to it's visibility
+        if (isset($this->entityIdVisibilityIdMapping[$entityId = $this->getLastEntityId()])) {
+            return $this->entityIdVisibilityIdMapping[$entityId];
+        }
+
+        // throw a new exception
+        throw new \Exception(
+            $this->appendExceptionSuffix(
+                sprintf('Can\'t find visibility mapping for entity ID "%d"', $entityId)
+            )
+        );
+    }
+
+    /**
+     * Add the entity ID => visibility mapping for the actual entity ID.
+     *
+     * @param string $visibility The visibility of the actual entity to map
+     *
+     * @return void
+     */
+    public function addEntityIdVisibilityIdMapping($visibility)
+    {
+        $this->entityIdVisibilityIdMapping[$this->getLastEntityId()] = $this->getVisibilityIdByValue($visibility);
     }
 }
