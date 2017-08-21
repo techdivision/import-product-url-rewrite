@@ -11,10 +11,14 @@
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
         </service>
+        <service id="import_product_url_rewrite.repository.url.rewrite.product.category" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository">
+            <argument type="service" id="connection"/>
+            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+        </service>
 
         <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryCreateProcessor">
             <argument type="service" id="connection"/>
-            <argument type="service" id="iimport_product_url_rewrite.utility.class.name"/>
+            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
         </service>
         <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryDeleteProcessor">
             <argument type="service" id="connection"/>
@@ -41,9 +45,6 @@
         </service>
         
         <service id="import_product_url_rewrite.observer.product.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Observers\ProductUrlRewriteObserver"/>
-        <service id="import_product_url_rewrite.observer.url.key" class="TechDivision\Import\Product\UrlRewrite\Observers\UrlKeyObserver">
-            <argument type="service" id="import_product.filter.convert.literal.url"/>
-        </service>
         <service id="import_product_url_rewrite.observer.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver">
             <argument type="service" id="import_product_url_rewrite.processor.product.url.rewrite"/>
         </service>
