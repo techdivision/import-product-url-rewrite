@@ -94,14 +94,14 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
 
                 // override the existing data with the store view specific one
                 for ($i = 0; $i < sizeof($this->artefacts); $i++) {
-                    if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
-                        // update name and URL key
-                        $this->artefacts[$i][ColumnKeys::NAME]    = $this->getValue(ColumnKeys::NAME);
+                    // query whether or not a URL key has be specfied and the store view codes are equal
+                    if ($this->hasValue(ColumnKeys::URL_KEY) && $this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
+                        // update the URL key
                         $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
 
                         // also update filename and line number
-                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_FILENAME] = $this->getFilename();
-                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getLineNumber();
+                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_FILENAME] = $this->getSubject()->getFilename();
+                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getSubject()->getLineNumber();
                     }
                 }
 
@@ -113,7 +113,6 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                         ColumnKeys::STORE_VIEW_CODE    => $storeViewCode,
                         ColumnKeys::CATEGORIES         => $this->getValue(ColumnKeys::CATEGORIES),
                         ColumnKeys::PRODUCT_WEBSITES   => $this->getValue(ColumnKeys::PRODUCT_WEBSITES),
-                        ColumnKeys::NAME               => $this->getValue(ColumnKeys::NAME),
                         ColumnKeys::VISIBILITY         => $this->getValue(ColumnKeys::VISIBILITY),
                         ColumnKeys::URL_KEY            => $this->getValue(ColumnKeys::URL_KEY)
                     ),
@@ -122,7 +121,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                         ColumnKeys::STORE_VIEW_CODE    => ColumnKeys::STORE_VIEW_CODE,
                         ColumnKeys::CATEGORIES         => ColumnKeys::CATEGORIES,
                         ColumnKeys::PRODUCT_WEBSITES   => ColumnKeys::PRODUCT_WEBSITES,
-                        ColumnKeys::NAME               => ColumnKeys::NAME,
+                        ColumnKeys::VISIBILITY         => ColumnKeys::VISIBILITY,
                         ColumnKeys::URL_KEY            => ColumnKeys::URL_KEY,
                     )
                 );

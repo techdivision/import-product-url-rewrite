@@ -35,7 +35,7 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
 {
 
     /**
-     * Return's the action with the stock status CRUD methods.
+     * Return's the action with the URL rewrite CRUD methods.
      *
      * @return \TechDivision\Import\Actions\UrlRewriteAction The action instance
      */
@@ -49,11 +49,32 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
     public function getUrlRewriteProductCategoryAction();
 
     /**
+     * Return's the repository to load the product varchar attribute with.
+     *
+     * @return \TechDivision\Import\Product\Repositories\ProductVarcharRepository The repository instance
+     */
+    public function getProductVarcharRepository();
+
+    /**
+     * Return's the repository to load the URL rewrites with.
+     *
+     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository The repository instance
+     */
+    public function getUrlRewriteRepository();
+
+    /**
      * Return's the repository to load the URL rewrite product category relations with.
      *
-     * @return \TechDivision\Import\Product\Repositories\UrlRewriteProductCategoryRepository The repository instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository The repository instance
      */
     public function getUrlRewriteProductCategoryRepository();
+
+    /**
+     * Return's the repository to load the products with.
+     *
+     * @return \TechDivision\Import\Product\Repositories\ProductRepository The repository instance
+     */
+    public function getProductRepository();
 
     /**
      * Return's the URL rewrites for the passed URL entity type and ID.
@@ -93,6 +114,15 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
      * @return array The URL rewrite product category relations
      */
     public function getUrlRewriteProductCategoriesBySku($sku);
+
+    /**
+     * Load's and return's the product with the passed SKU.
+     *
+     * @param string $sku The SKU of the product to load
+     *
+     * @return array The product
+     */
+    public function loadProduct($sku);
 
     /**
      * Load's and return's the varchar attribute with the passed params.

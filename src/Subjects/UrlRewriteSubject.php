@@ -22,6 +22,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Subjects;
 
 use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\Subjects\AbstractProductSubject;
+use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 
 /**
  * The subject implementation that handles the business logic to persist URL rewrites.
@@ -114,5 +115,29 @@ class UrlRewriteSubject extends AbstractProductSubject
     public function addEntityIdVisibilityIdMapping($visibility)
     {
         $this->entityIdVisibilityIdMapping[$this->getLastEntityId()] = $this->getVisibilityIdByValue($visibility);
+    }
+
+    /**
+     * Return's TRUE if the store with the passed code is active, else FALSE.
+     *
+     * @param string $storeViewCode The store view code of the store to check for the active flag set to 1
+     *
+     * @return boolean TRUE if the store is active, else FALSE
+     * @throws \Exception Is thrown, if the store with the actual code is not available
+     */
+    public function storeIsActive($storeViewCode)
+    {
+
+        // query whether or not, the requested store is available
+        if (isset($this->stores[$storeViewCode])) {
+            return 1 === (integer) $this->stores[$storeViewCode][MemberNames::IS_ACTIVE];
+        }
+
+        // throw an exception, if not
+        throw new \Exception(
+            $this->appendExceptionSuffix(
+                sprintf('Found invalid store view code %s', $storeViewCode)
+            )
+        );
     }
 }
