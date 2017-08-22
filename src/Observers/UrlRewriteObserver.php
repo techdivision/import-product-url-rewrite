@@ -21,11 +21,11 @@
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use TechDivision\Import\Utils\StoreViewCodes;
-use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
-use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
+use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
+use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
 
 /**
@@ -127,36 +127,53 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      * Process the observer's business logic.
      *
      * @return void
+     * @throws \Exception Is thrown, if the product is not available or no URL key has been specified
      */
     protected function process()
     {
 
+        // try to load the entity ID for the product with the passed SKU
+        if ($product = $this->loadProduct($sku = $this->getValue(ColumnKeys::SKU))) {
+            $this->setLastEntityId($this->entityId = $product[MemberNames::ENTITY_ID]);
+        } else {
+            // prepare a log message
+            $message = sprintf('Product with SKU "%s" can\'t be loaded to create URL rewrites', $sku);
+            // query whether or not we're in debug mode
+            if ($this->getSubject()->isDebugMode()) {
+                $this->getSubject()->getSystemLogger()->warning($message);
+                return;
+            } else {
+                throw new \Exception($message);
+            }
+        }
+
+        // try to load the URL key
+        if ($this->hasValue(ColumnKeys::URL_KEY)) {
+            $this->urlKey = $this->getValue(ColumnKeys::URL_KEY);
+        } else {
+            // prepare a log message
+            $message = sprintf('Can\'t find a value in column "url_key" for product with SKU "%s"', $sku);
+            // query whether or not we're in debug mode
+            if ($this->getSubject()->isDebugMode()) {
+                $this->getSubject()->getSystemLogger()->warning($message);
+            } else {
+                return;
+                throw new \Exception($message);
+            }
+        }
+
         // initialize the store view code
         $this->getSubject()->prepareStoreViewCode();
 
-        // load the SKU
-        $sku = $this->getValue($this->getPrimaryKeyColumnName());
-
         // load the store view - if no store view has been set we use the admin store view as default
         $storeViewCode = $this->getSubject()->getStoreViewCode(StoreViewCodes::ADMIN);
-
-        // only map the visibility of the product with the default store view
-        if (!$this->hasBeenProcessed($sku)) {
-            $this->addEntityIdVisibilityIdMapping($this->getValue(ColumnKeys::VISIBILITY));
-        }
-
-        // query whether or not we're in the admin store view
-        if ($storeViewCode === StoreViewCodes::ADMIN) {
-            // stop processing as we don't want to create URL rewrites for the admin store view
-            return;
-        }
 
         // query whether or not the row has already been processed
         if ($this->storeViewHasBeenProcessed($sku, $storeViewCode)) {
             // log a message
             $this->getSubject()
                  ->getSystemLogger()
-                 ->warning(
+                 ->debug(
                      sprintf(
                          'URL rewrites for SKU "%s" + store view code "%s" has already been processed',
                          $sku,
@@ -164,25 +181,68 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                      )
                  );
 
-            // return immediately
+            // return without creating any rewrites
             return;
         };
 
-        // try to load the URL key, return immediately if not possible
-        if ($this->hasValue(ColumnKeys::URL_KEY)) {
-            $this->urlKey = $urlKey = $this->getValue(ColumnKeys::URL_KEY);
-        } else {
+        // stop processing as we don't want to create URL rewrites for the admin store view
+        if ($storeViewCode === StoreViewCodes::ADMIN) {
+            // log a message and return
+            $this->getSubject()
+                 ->getSystemLogger()
+                 ->debug(
+                     sprintf(
+                         'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
+                         $storeViewCode,
+                         $sku
+                     )
+                 );
+
+            // return without creating any rewrites
+            return;
+        }
+
+        // stop processing if the store is NOT active
+        if (!$this->getSubject()->storeIsActive($storeViewCode)) {
+            // log a message and return
+            $this->getSubject()
+                 ->getSystemLogger()
+                 ->debug(
+                     sprintf(
+                         'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
+                         $storeViewCode,
+                         $sku
+                     )
+                 );
+
+            // return without creating any rewrites
+            return;
+        }
+
+        // only map the visibility for the product row related to the default store view
+        if (!$this->hasBeenProcessed($sku)) {
+            $this->addEntityIdVisibilityIdMapping($this->getValue(ColumnKeys::VISIBILITY));
+        }
+
+        // do NOT create new URL rewrites, if the product is NOT visible (any more), BUT
+        // handle existing URL rewrites, e. g. to remove and clean up the URL rewrites
+        if (!$this->isVisible()) {
+            // log a message
+            $this->getSubject()
+                 ->getSystemLogger()
+                 ->debug(
+                     sprintf(
+                         'Product with SKU "%s" is not visible, so no URL rewrites will be created',
+                         $sku
+                     )
+                 );
+
+            // return without creating any rewrites
             return;
         }
 
         // prepare the URL rewrites
         $this->prepareUrlRewrites();
-
-        // do NOT create new URL rewrites, if the product is NOT visible (any more), BUT
-        // handle existing URL rewrites, e. g. to remove and clean up the URL rewrites
-        if ($this->isNotVisible()) {
-            return;
-        }
 
         // iterate over the categories and create the URL rewrites
         foreach ($this->urlRewrites as $categoryId => $urlRewrite) {
@@ -190,7 +250,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             if ($urlRewrite = $this->initializeUrlRewrite($urlRewrite)) {
                 // initialize URL rewrite and catagory ID
                 $this->categoryId = $categoryId;
-                $this->entityId = $urlRewrite[MemberNames::ENTITY_ID];
 
                 try {
                     // persist the URL rewrite
@@ -213,14 +272,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                     }
                 }
             }
-        }
-
-        // if changed, e. g. the request path of the URL rewrite has been suffixed with a
-        // number because another one with the same request path for an other entity and
-        // a different store view already exists, then override the old URL key with the
-        // new generated one
-        if ($urlKey !== $this->urlKey) {
-            $this->setValue(ColumnKeys::URL_KEY, $this->urlKey);
         }
     }
 
@@ -264,21 +315,23 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // load the root category, because we need that to create the default product URL rewrite
         $rootCategory = $this->getRootCategory();
 
+        // at least, add the root category ID to the category => product relations
+        $this->productCategoryIds[] = $rootCategory[MemberNames::ENTITY_ID];
+
         // query whether or not categories has to be used as product URL suffix
         if ($this->getSubject()->getCoreConfigData(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_USE_CATEGORIES, false)) {
-            // if yes, add the category IDs of the products
-            foreach ($this->getProductCategoryIds() as $categoryId => $entityId) {
-                $this->resolveCategoryIds($categoryId, $entityId, true);
+            // append the category => product relations found
+            foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
+                // load the category for the found path
+                $category = $this->getCategoryByPath(trim($path));
+                // resolve the product's categories recursively
+                $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true);
             }
         }
 
-        // at least, add the root category ID to the category => product relations
-        $this->productCategoryIds[$rootCategory[MemberNames::ENTITY_ID]] = $this->getSubject()->getLastEntityId();
-
         // prepare the URL rewrites
-        foreach ($this->productCategoryIds as $categoryId => $entityId) {
-            // set category/entity ID
-            $this->entityId = $entityId;
+        foreach ($this->productCategoryIds as $categoryId) {
+            // set the category ID
             $this->categoryId = $categoryId;
 
             // prepare the attributes for each URL rewrite
@@ -292,12 +345,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      * anchor flag set.
      *
      * @param integer $categoryId The ID of the category to resolve the parents
-     * @param integer $entityId   The ID of the product entity to relate the category with
      * @param boolean $topLevel   TRUE if the passed category has top level, else FALSE
      *
      * @return void
      */
-    protected function resolveCategoryIds($categoryId, $entityId, $topLevel = false)
+    protected function resolveCategoryIds($categoryId, $topLevel = false)
     {
 
         // return immediately if this is the absolute root node
@@ -309,13 +361,13 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         $category = $this->getCategory($categoryId);
 
         // query whether or not the product has already been related
-        if (!isset($this->productCategoryIds[$categoryId])) {
+        if (!in_array($categoryId, $this->productCategoryIds)) {
             if ($topLevel) {
                 // relate it, if the category is top level
-                $this->productCategoryIds[$categoryId] = $entityId;
+                $this->productCategoryIds[] = $categoryId;
             } elseif ((integer) $category[MemberNames::IS_ANCHOR] === 1) {
                 // also relate it, if the category is not top level, but has the anchor flag set
-                $this->productCategoryIds[$categoryId] = $entityId;
+                $this->productCategoryIds[] = $categoryId;
             } else {
                 $this->getSubject()
                      ->getSystemLogger()
@@ -328,7 +380,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
 
         // try to resolve the parent category IDs
         if ($rootCategory[MemberNames::ENTITY_ID] !== ($parentId = $category[MemberNames::PARENT_ID])) {
-            $this->resolveCategoryIds($parentId, $entityId, false);
+            $this->resolveCategoryIds($parentId, false);
         }
     }
 
@@ -395,14 +447,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected function prepareTargetPath(array $category)
     {
 
-        // load the actual entity ID
-        $lastEntityId = $this->getLastEntityId();
-
         // query whether or not, the category is the root category
         if ($this->isRootCategory($category)) {
-            $targetPath = sprintf('catalog/product/view/id/%d', $lastEntityId);
+            $targetPath = sprintf('catalog/product/view/id/%d', $this->entityId);
         } else {
-            $targetPath = sprintf('catalog/product/view/id/%d/category/%d', $lastEntityId, $category[MemberNames::ENTITY_ID]);
+            $targetPath = sprintf('catalog/product/view/id/%d/category/%d', $this->entityId, $category[MemberNames::ENTITY_ID]);
         }
 
         // return the target path
@@ -421,7 +470,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     {
 
         // load the product URL suffix to use
-        $urlSuffix = $this->getCoreConfigData(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html');
+        $urlSuffix = $this->getSubject()->getCoreConfigData(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html');
 
         // query whether or not, the category is the root category
         if ($this->isRootCategory($category)) {
@@ -462,20 +511,20 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         }
 
         // if not, set the category ID in the metadata
-        $metadata[UrlRewriteObserver::CATEGORY_ID] = $category[MemberNames::ENTITY_ID];
+        $metadata[UrlRewriteObserver::CATEGORY_ID] = (integer) $category[MemberNames::ENTITY_ID];
 
         // return the metadata
         return $metadata;
     }
 
     /**
-     * Query whether or not the actual entity is visible or not.
+     * Query whether or not the actual entity is visible.
      *
-     * @return boolean TRUE if the entity is NOT visible, else FALSE
+     * @return boolean TRUE if the entity is visible, else FALSE
      */
-    protected function isNotVisible()
+    protected function isVisible()
     {
-        return $this->getEntityIdVisibilityIdMapping() === VisibilityKeys::VISIBILITY_NOT_VISIBLE;
+        return $this->getEntityIdVisibilityIdMapping() !== VisibilityKeys::VISIBILITY_NOT_VISIBLE;
     }
 
     /**
@@ -521,13 +570,15 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     }
 
     /**
-     * Return's the list with category IDs the product is related with.
+     * Return's the category with the passed path.
      *
-     * @return array The product's category IDs
+     * @param string $path The path of the category to return
+     *
+     * @return array The category
      */
-    protected function getProductCategoryIds()
+    protected function getCategoryByPath($path)
     {
-        return $this->getSubject()->getProductCategoryIds();
+        return $this->getSubject()->getCategoryByPath($path);
     }
 
     /**
@@ -567,16 +618,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     }
 
     /**
-     * Return's the column name that contains the primary key.
-     *
-     * @return string the column name that contains the primary key
-     */
-    protected function getPrimaryKeyColumnName()
-    {
-        return ColumnKeys::SKU;
-    }
-
-    /**
      * Queries whether or not the passed SKU and store view code has already been processed.
      *
      * @param string $sku           The SKU to check been processed
@@ -599,5 +640,29 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected function addEntityIdVisibilityIdMapping($visibility)
     {
         $this->getSubject()->addEntityIdVisibilityIdMapping($visibility);
+    }
+
+    /**
+     * Set's the ID of the product that has been created recently.
+     *
+     * @param string $lastEntityId The entity ID
+     *
+     * @return void
+     */
+    protected function setLastEntityId($lastEntityId)
+    {
+        $this->getSubject()->setLastEntityId($lastEntityId);
+    }
+
+    /**
+     * Load's and return's the product with the passed SKU.
+     *
+     * @param string $sku The SKU of the product to load
+     *
+     * @return array The product
+     */
+    protected function loadProduct($sku)
+    {
+        return $this->getProductUrlRewriteProcessor()->loadProduct($sku);
     }
 }

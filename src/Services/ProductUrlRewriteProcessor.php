@@ -22,6 +22,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Services;
 
 use TechDivision\Import\Actions\UrlRewriteAction;
 use TechDivision\Import\Connection\ConnectionInterface;
+use TechDivision\Import\Product\Repositories\ProductRepository;
 use TechDivision\Import\Product\Repositories\ProductVarcharRepository;
 use TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction;
 use TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository;
@@ -61,31 +62,40 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     protected $urlRewriteProductCategoryAction;
 
     /**
+     * The repository to load the products with.
+     *
+     * @var \TechDivision\Import\Product\Repositories\ProductRepository
+     */
+    protected $productRepository;
+
+    /**
      * The repository to load the URL rewrites with.
      *
-     * @var \TechDivision\Import\Product\Repositories\UrlRewriteRepository
+     * @var \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository
      */
     protected $urlRewriteRepository;
 
     /**
      * The repository to load the URL rewrite product category relations with.
      *
-     * @var \TechDivision\Import\Product\Repositories\UrlRewriteProductCategoryRepository
+     * @var \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository
      */
     protected $urlRewriteProductCategoryRepository;
 
     /**
      * Initialize the processor with the necessary assembler and repository instances.
      *
-     * @param \TechDivision\Import\Connection\ConnectionInterface                           $connection                          The connection to use
-     * @param \TechDivision\Import\Product\Repositories\ProductVarcharRepository            $productVarcharRepository            The product varchar repository to use
-     * @param \TechDivision\Import\Product\Repositories\UrlRewriteRepository                $urlRewriteRepository                The URL rewrite repository to use
-     * @param \TechDivision\Import\Product\Repositories\UrlRewriteProductCategoryRepository $urlRewriteProductCategoryRepository The URL rewrite product category repository to use
-     * @param \TechDivision\Import\Actions\UrlRewriteAction                                 $urlRewriteAction                    The URL rewrite action to use
-     * @param \TechDivision\Import\Product\Actions\UrlRewriteProductCategoryAction          $urlRewriteProductCategoryAction     The URL rewrite product category action to use
+     * @param \TechDivision\Import\Connection\ConnectionInterface                                      $connection                          The connection to use
+     * @param \TechDivision\Import\Product\Repositories\ProductRepository                              $productRepository                   The product repository to use
+     * @param \TechDivision\Import\Product\Repositories\ProductVarcharRepository                       $productVarcharRepository            The product varchar repository to use
+     * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository                $urlRewriteRepository                The URL rewrite repository to use
+     * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository $urlRewriteProductCategoryRepository The URL rewrite product category repository to use
+     * @param \TechDivision\Import\Actions\UrlRewriteAction                                            $urlRewriteAction                    The URL rewrite action to use
+     * @param \TechDivision\Import\Product\Actions\UrlRewriteProductCategoryAction                     $urlRewriteProductCategoryAction     The URL rewrite product category action to use
      */
     public function __construct(
         ConnectionInterface $connection,
+        ProductRepository $productRepository,
         ProductVarcharRepository $productVarcharRepository,
         UrlRewriteRepository $urlRewriteRepository,
         UrlRewriteProductCategoryRepository $urlRewriteProductCategoryRepository,
@@ -93,6 +103,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
         UrlRewriteProductCategoryAction $urlRewriteProductCategoryAction
     ) {
         $this->setConnection($connection);
+        $this->setProductRepository($productRepository);
         $this->setProductVarcharRepository($productVarcharRepository);
         $this->setUrlRewriteRepository($urlRewriteRepository);
         $this->setUrlRewriteProductCategoryRepository($urlRewriteProductCategoryRepository);
@@ -235,7 +246,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Set's the repository to load the URL rewrites with.
      *
-     * @param \TechDivision\Import\Product\Repositories\UrlRewriteRepository $urlRewriteRepository The repository instance
+     * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository $urlRewriteRepository The repository instance
      *
      * @return void
      */
@@ -247,7 +258,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Return's the repository to load the URL rewrites with.
      *
-     * @return \TechDivision\Import\Product\Repositories\UrlRewriteRepository The repository instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository The repository instance
      */
     public function getUrlRewriteRepository()
     {
@@ -257,7 +268,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Set's the repository to load the URL rewrite product category relations with.
      *
-     * @param \TechDivision\Import\Product\Repositories\UrlRewriteProductCategoryRepository $urlRewriteProductCategoryRepository The repository instance
+     * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository $urlRewriteProductCategoryRepository The repository instance
      *
      * @return void
      */
@@ -269,11 +280,33 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Return's the repository to load the URL rewrite product category relations with.
      *
-     * @return \TechDivision\Import\Product\Repositories\UrlRewriteProductCategoryRepository The repository instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository The repository instance
      */
     public function getUrlRewriteProductCategoryRepository()
     {
         return $this->urlRewriteProductCategoryRepository;
+    }
+
+    /**
+     * Set's the repository to load the products with.
+     *
+     * @param \TechDivision\Import\Product\Repositories\ProductRepository $productRepository The repository instance
+     *
+     * @return void
+     */
+    public function setProductRepository($productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
+
+    /**
+     * Return's the repository to load the products with.
+     *
+     * @return \TechDivision\Import\Product\Repositories\ProductRepository The repository instance
+     */
+    public function getProductRepository()
+    {
+        return $this->productRepository;
     }
 
     /**
@@ -325,6 +358,18 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     public function getUrlRewriteProductCategoriesBySku($sku)
     {
         return $this->getUrlRewriteProductCategoryRepository()->findAllBySku($sku);
+    }
+
+    /**
+     * Load's and return's the product with the passed SKU.
+     *
+     * @param string $sku The SKU of the product to load
+     *
+     * @return array The product
+     */
+    public function loadProduct($sku)
+    {
+        return $this->getProductRepository()->findOneBySku($sku);
     }
 
     /**

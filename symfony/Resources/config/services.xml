@@ -37,6 +37,7 @@
 
         <service id="import_product_url_rewrite.processor.product.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessor">
             <argument type="service" id="connection"/>
+            <argument type="service" id="import_product.repository.product"/>
             <argument type="service" id="import_product.repository.product.varchar"/>
             <argument type="service" id="import_product_url_rewrite.repository.url.rewrite"/>
             <argument type="service" id="import_product_url_rewrite.repository.url.rewrite.product.category"/>
@@ -45,6 +46,9 @@
         </service>
         
         <service id="import_product_url_rewrite.observer.product.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Observers\ProductUrlRewriteObserver"/>
+        <service id="import_product_url_rewrite.observer.clear.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Observers\ClearUrlRewriteObserver">
+            <argument type="service" id="import_product_url_rewrite.processor.product.url.rewrite"/>
+        </service>
         <service id="import_product_url_rewrite.observer.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver">
             <argument type="service" id="import_product_url_rewrite.processor.product.url.rewrite"/>
         </service>
