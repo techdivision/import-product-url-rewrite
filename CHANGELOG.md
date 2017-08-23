@@ -1,3 +1,13 @@
+# Version 1.0.0-beta3
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Ignore relations with invalid categories in debug mode
+
 # Version 1.0.0-beta2
 
 ## Bugfixes
