@@ -266,7 +266,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 } catch (\Exception $e) {
                     // query whether or not debug mode has been enabled
                     if ($this->getSubject()->isDebugMode()) {
-                        $this->getSubject()->getSystemLogger()->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                        $this->getSubject()
+                             ->getSystemLogger()
+                             ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
                     } else {
                         throw $e;
                     }
@@ -322,10 +324,22 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         if ($this->getSubject()->getCoreConfigData(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_USE_CATEGORIES, false)) {
             // append the category => product relations found
             foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
-                // load the category for the found path
-                $category = $this->getCategoryByPath(trim($path));
-                // resolve the product's categories recursively
-                $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true);
+                try {
+                    // try to load the category for the given path
+                    $category = $this->getCategoryByPath(trim($path));
+                    // resolve the product's categories recursively
+                    $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true);
+
+                } catch (\Exception $e) {
+                    // query whether or not debug mode has been enabled
+                    if ($this->getSubject()->isDebugMode()) {
+                        $this->getSubject()
+                             ->getSystemLogger()
+                             ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                    } else {
+                        throw $e;
+                    }
+                }
             }
         }
 
