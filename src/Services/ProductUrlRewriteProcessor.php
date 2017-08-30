@@ -57,7 +57,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * The action for URL rewrite product category CRUD methods.
      *
-     * @var \TechDivision\Import\Product\Actions\UrlRewriteProductCategoryAction
+     * @var \TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction
      */
     protected $urlRewriteProductCategoryAction;
 
@@ -91,7 +91,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository                $urlRewriteRepository                The URL rewrite repository to use
      * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository $urlRewriteProductCategoryRepository The URL rewrite product category repository to use
      * @param \TechDivision\Import\Actions\UrlRewriteAction                                            $urlRewriteAction                    The URL rewrite action to use
-     * @param \TechDivision\Import\Product\Actions\UrlRewriteProductCategoryAction                     $urlRewriteProductCategoryAction     The URL rewrite product category action to use
+     * @param \TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction          $urlRewriteProductCategoryAction     The URL rewrite product category action to use
      */
     public function __construct(
         ConnectionInterface $connection,
@@ -202,7 +202,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Set's the action with the URL rewrite product category CRUD methods.
      *
-     * @param \TechDivision\Import\Product\Actions\UrlRewriteProductCategoryAction $urlRewriteProductCategoryAction The action with the URL rewrite CRUD methods
+     * @param \TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction $urlRewriteProductCategoryAction The action with the URL rewrite CRUD methods
      *
      * @return void
      */
@@ -214,7 +214,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Return's the action with the URL rewrite product category CRUD methods.
      *
-     * @return \TechDivision\Import\Product\Actions\UrlRewriteProductCategoryAction The action instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction The action instance
      */
     public function getUrlRewriteProductCategoryAction()
     {
