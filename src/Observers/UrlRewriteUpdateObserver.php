@@ -22,6 +22,8 @@ namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
+use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
+use TechDivision\Import\Product\UrlRewrite\Utils\ConfigurationKeys;
 
 /**
  * Observer that creates/updates the product's URL rewrites.
@@ -46,7 +48,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
      * Process the observer's business logic.
      *
      * @return void
-     * @see \TechDivision\Import\Product\Observers\UrlRewriteObserver::process()
+     * @see \TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver::process()
      */
     protected function process()
     {
@@ -74,28 +76,34 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                     continue;
                 }
 
-                // load the metadata from the existing URL rewrite
-                $metadata = $this->getMetadata($existingUrlRewrite);
+                // initialize the data with the URL rewrites new 301 configuration
+                $attr = array(MemberNames::REDIRECT_TYPE => 301);
 
                 // initialize the category with the root category
                 $category = $rootCategory;
 
-                // query whether or not, the existing URL rewrite has been replaced
+                // load the metadata from the existing URL rewrite
+                $metadata = $this->getMetadata($existingUrlRewrite);
+
+                // query whether or not the URL key of the existing URL rewrite has changed
                 if (isset($this->urlRewrites[$metadata[UrlRewriteObserver::CATEGORY_ID]])) {
-                    // if yes, load the category of the original one
-                    $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID]);
+                    try {
+                        // if yes, try to load the original category and OVERRIDE the default category
+                        $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID]);
+                    } catch (\Exception $e) {
+                        // if the old category can NOT be loaded, override the metadata
+                        // of the category with the data of the default category
+                        $attr[MemberNames::METADATA] = serialize($this->prepareMetadata($category));
+
+                        // finally log a warning that the old category is not available ony more
+                        $this->getSubject()
+                             ->getSystemLogger()
+                             ->warning(sprintf('Category with ID %d is not longer available', $metadata[UrlRewriteObserver::CATEGORY_ID]));
+                    }
                 }
 
                 // load target path/metadata for the actual category
-                $targetPath = $this->prepareRequestPath($category);
-                $metadata = serialize($this->prepareMetadata($category));
-
-                // override data with the 301 configuration
-                $attr = array(
-                    MemberNames::REDIRECT_TYPE    => 301,
-                    MemberNames::METADATA         => $metadata,
-                    MemberNames::TARGET_PATH      => $targetPath,
-                );
+                $attr[MemberNames::TARGET_PATH] = $this->prepareRequestPath($category);
 
                 // merge and return the prepared URL rewrite
                 $existingUrlRewrite = $this->mergeEntity($existingUrlRewrite, $attr);
@@ -104,8 +112,24 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                 $this->persistUrlRewrite($existingUrlRewrite);
 
             } else {
-                // delete the existing URL rewrite
-                $this->deleteUrlRewrite($existingUrlRewrite);
+                // query whether or not the URL rewrite has to be removed
+                if ($this->getSubject()->getConfiguration()->hasParam(ConfigurationKeys::CLEAN_UP_URL_REWRITES) &&
+                    $this->getSubject()->getConfiguration()->getParam(ConfigurationKeys::CLEAN_UP_URL_REWRITES)
+                ) {
+                    // delete the existing URL rewrite
+                    $this->deleteUrlRewrite($existingUrlRewrite);
+
+                    // log a message, that old URL rewrites have been cleaned-up
+                    $this->getSubject()
+                         ->getSystemLogger()
+                         ->notice(
+                             sprintf(
+                                 'Cleaned-up %d URL rewrite "%s" for product with SKU "%s"',
+                                 $existingUrlRewrite[MemberNames::REQUEST_PATH],
+                                 $this->getValue(ColumnKeys::SKU)
+                             )
+                         );
+                }
             }
         }
     }
@@ -147,7 +171,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
      * Prepare's the URL rewrites that has to be created/updated.
      *
      * @return void
-     * @see \TechDivision\Import\Product\Observers\UrlRewriteObserver::prepareUrlRewrites()
+     * @see \TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver::prepareUrlRewrites()
      */
     protected function prepareUrlRewrites()
     {
