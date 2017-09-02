@@ -93,7 +93,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                     } catch (\Exception $e) {
                         // if the old category can NOT be loaded, override the metadata
                         // of the category with the data of the default category
-                        $attr[MemberNames::METADATA] = serialize($this->prepareMetadata($category));
+                        $attr[MemberNames::METADATA] = serialize(array());
 
                         // finally log a warning that the old category is not available ony more
                         $this->getSubject()
