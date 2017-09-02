@@ -1,3 +1,13 @@
+# Version 1.0.0-beta5
+
+## Bugfixes
+
+* Fixed invalid metadata initialization when old category can not be loaded
+
+## Features
+
+* None
+
 # Version 1.0.0-beta4
 
 ## Bugfixes
