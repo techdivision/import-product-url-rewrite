@@ -1,3 +1,14 @@
+# Version 1.0.0-beta6
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Switch error level when removing old URL rewrites from notice to warning
+* Move configuration keys for clean-up URL rewrites to techdivision/import library
+
 # Version 1.0.0-beta5
 
 ## Bugfixes

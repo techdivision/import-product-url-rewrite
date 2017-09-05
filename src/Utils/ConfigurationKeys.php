@@ -31,11 +31,4 @@ namespace TechDivision\Import\Product\UrlRewrite\Utils;
  */
 class ConfigurationKeys extends \TechDivision\Import\Product\Utils\ConfigurationKeys
 {
-
-    /**
-     * Name for the configuration key 'clean-up-url-rewrites'.
-     *
-     * @var string
-     */
-    const CLEAN_UP_URL_REWRITES = 'clean-up-url-rewrites';
 }
