@@ -122,7 +122,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                     // log a message, that old URL rewrites have been cleaned-up
                     $this->getSubject()
                          ->getSystemLogger()
-                         ->notice(
+                         ->warning(
                              sprintf(
                                  'Cleaned-up %d URL rewrite "%s" for product with SKU "%s"',
                                  $existingUrlRewrite[MemberNames::REQUEST_PATH],
@@ -211,7 +211,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
         // load the category ID of the passed URL rewrite entity
         $categoryId = $this->getCategoryIdFromMetadata($attr);
 
-        // iterate over the availabel URL rewrites to find the one that matches the category ID
+        // iterate over the available URL rewrites to find the one that matches the category ID
         foreach ($this->existingUrlRewrites as $urlRewrite) {
             // compare the category IDs AND the request path
             if ($categoryId === $this->getCategoryIdFromMetadata($urlRewrite) &&
@@ -327,7 +327,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
      *
      * @return array The URL rewrites
      */
-    public function getUrlRewritesByEntityTypeAndEntityIdAndStoreId($entityType, $entityId, $storeId)
+    protected function getUrlRewritesByEntityTypeAndEntityIdAndStoreId($entityType, $entityId, $storeId)
     {
         return $this->getProductUrlRewriteProcessor()->getUrlRewritesByEntityTypeAndEntityIdAndStoreId($entityType, $entityId, $storeId);
     }
