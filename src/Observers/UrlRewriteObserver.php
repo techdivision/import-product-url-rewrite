@@ -104,6 +104,13 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected $productUrlRewriteProcessor;
 
     /**
+     * Extending classes may need to know, whether currently processed store view is active.
+     *
+     * @var bool
+     */
+    protected $isStoreViewActive;
+
+    /**
      * Initialize the observer with the passed product URL rewrite processor instance.
      *
      * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
@@ -172,14 +179,14 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         if ($this->storeViewHasBeenProcessed($sku, $storeViewCode)) {
             // log a message
             $this->getSubject()
-                 ->getSystemLogger()
-                 ->debug(
-                     sprintf(
-                         'URL rewrites for SKU "%s" + store view code "%s" has already been processed',
-                         $sku,
-                         $storeViewCode
-                     )
-                 );
+                ->getSystemLogger()
+                ->debug(
+                    sprintf(
+                        'URL rewrites for SKU "%s" + store view code "%s" has already been processed',
+                        $sku,
+                        $storeViewCode
+                    )
+                );
 
             // return without creating any rewrites
             return;
@@ -189,31 +196,32 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         if ($storeViewCode === StoreViewCodes::ADMIN) {
             // log a message and return
             $this->getSubject()
-                 ->getSystemLogger()
-                 ->debug(
-                     sprintf(
-                         'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
-                         $storeViewCode,
-                         $sku
-                     )
-                 );
+                ->getSystemLogger()
+                ->debug(
+                    sprintf(
+                        'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
+                        $storeViewCode,
+                        $sku
+                    )
+                );
 
             // return without creating any rewrites
             return;
         }
 
         // stop processing if the store is NOT active
-        if (!$this->getSubject()->storeIsActive($storeViewCode)) {
+        $this->isStoreViewActive = $this->getSubject()->storeIsActive($storeViewCode);
+        if (!$this->isStoreViewActive) {
             // log a message and return
             $this->getSubject()
-                 ->getSystemLogger()
-                 ->debug(
-                     sprintf(
-                         'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
-                         $storeViewCode,
-                         $sku
-                     )
-                 );
+                ->getSystemLogger()
+                ->debug(
+                    sprintf(
+                        'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
+                        $storeViewCode,
+                        $sku
+                    )
+                );
 
             // return without creating any rewrites
             return;
@@ -229,13 +237,13 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         if (!$this->isVisible()) {
             // log a message
             $this->getSubject()
-                 ->getSystemLogger()
-                 ->debug(
-                     sprintf(
-                         'Product with SKU "%s" is not visible, so no URL rewrites will be created',
-                         $sku
-                     )
-                 );
+                ->getSystemLogger()
+                ->debug(
+                    sprintf(
+                        'Product with SKU "%s" is not visible, so no URL rewrites will be created',
+                        $sku
+                    )
+                );
 
             // return without creating any rewrites
             return;
@@ -267,8 +275,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                     // query whether or not debug mode has been enabled
                     if ($this->getSubject()->isDebugMode()) {
                         $this->getSubject()
-                             ->getSystemLogger()
-                             ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                            ->getSystemLogger()
+                            ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
                     } else {
                         throw $e;
                     }
@@ -334,8 +342,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                     // query whether or not debug mode has been enabled
                     if ($this->getSubject()->isDebugMode()) {
                         $this->getSubject()
-                             ->getSystemLogger()
-                             ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                            ->getSystemLogger()
+                            ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
                     } else {
                         throw $e;
                     }
@@ -384,8 +392,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 $this->productCategoryIds[] = $categoryId;
             } else {
                 $this->getSubject()
-                     ->getSystemLogger()
-                     ->debug(sprintf('Don\'t create URL rewrite for category "%s" because of missing anchor flag', $category[MemberNames::PATH]));
+                    ->getSystemLogger()
+                    ->debug(sprintf('Don\'t create URL rewrite for category "%s" because of missing anchor flag', $category[MemberNames::PATH]));
             }
         }
 

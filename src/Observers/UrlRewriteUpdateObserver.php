@@ -56,6 +56,11 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
         // process the new URL rewrites first
         parent::process();
 
+        // stop processing if the store is NOT active
+        if (!$this->isStoreViewActive) {
+            return;
+        }
+
         // load the root category
         $rootCategory = $this->getRootCategory();
 
@@ -97,8 +102,8 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
 
                         // finally log a warning that the old category is not available ony more
                         $this->getSubject()
-                             ->getSystemLogger()
-                             ->warning(sprintf('Category with ID %d is not longer available', $metadata[UrlRewriteObserver::CATEGORY_ID]));
+                            ->getSystemLogger()
+                            ->warning(sprintf('Category with ID %d is not longer available', $metadata[UrlRewriteObserver::CATEGORY_ID]));
                     }
                 }
 
@@ -121,14 +126,14 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
 
                     // log a message, that old URL rewrites have been cleaned-up
                     $this->getSubject()
-                         ->getSystemLogger()
-                         ->warning(
-                             sprintf(
-                                 'Cleaned-up %d URL rewrite "%s" for product with SKU "%s"',
-                                 $existingUrlRewrite[MemberNames::REQUEST_PATH],
-                                 $this->getValue(ColumnKeys::SKU)
-                             )
-                         );
+                        ->getSystemLogger()
+                        ->warning(
+                            sprintf(
+                                'Cleaned-up %d URL rewrite "%s" for product with SKU "%s"',
+                                $existingUrlRewrite[MemberNames::REQUEST_PATH],
+                                $this->getValue(ColumnKeys::SKU)
+                            )
+                        );
                 }
             }
         }
