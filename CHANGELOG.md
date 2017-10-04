@@ -1,3 +1,13 @@
+# Version 1.0.0-beta7
+
+## Bugfixes
+
+* Fixes bug, where url rewrite update is processed with an exception. This happens, when no rows with an active store_view exist for a given sku.
+
+## Features
+
+* None
+
 # Version 1.0.0-beta6
 
 ## Bugfixes
