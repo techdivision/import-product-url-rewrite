@@ -1,3 +1,13 @@
+# Version 1.0.0-beta8
+
+## Bugfixes
+
+* Add validation for url rewrite update to prevent that url rewrites are persisted, where target_path and request_path are equal.
+
+## Features
+
+* None
+
 # Version 1.0.0-beta7
 
 ## Bugfixes

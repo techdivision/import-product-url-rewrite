@@ -108,7 +108,14 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                 }
 
                 // load target path/metadata for the actual category
-                $attr[MemberNames::TARGET_PATH] = $this->prepareRequestPath($category);
+                $targetPath = $this->prepareRequestPath($category);
+
+                // skip update of url rewrite, if resulting url rewrite would be invalid
+                if ($targetPath == $attr[MemberNames::REQUEST_PATH]) {
+                    continue;
+                }
+
+                $attr[MemberNames::TARGET_PATH] = $targetPath;
 
                 // merge and return the prepared URL rewrite
                 $existingUrlRewrite = $this->mergeEntity($existingUrlRewrite, $attr);
@@ -136,20 +143,6 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                         );
                 }
             }
-        }
-    }
-
-    /**
-     * Return's the URL rewrite for the passed request path.
-     *
-     * @param string $requestPath The request path to return the URL rewrite for
-     *
-     * @return array|null The URL rewrite
-     */
-    protected function getExistingUrlRewrite($requestPath)
-    {
-        if (isset($this->existingUrlRewrites[$requestPath])) {
-            return $this->existingUrlRewrites[$requestPath];
         }
     }
 
