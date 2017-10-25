@@ -27,6 +27,7 @@ use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
+use TechDivision\Import\Subjects\SubjectInterface;
 
 /**
  * Observer that creates/updates the product's URL rewrites.
@@ -104,13 +105,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected $productUrlRewriteProcessor;
 
     /**
-     * Extending classes may need to know, whether currently processed store view is active.
-     *
-     * @var bool
-     */
-    protected $isStoreViewActive;
-
-    /**
      * Initialize the observer with the passed product URL rewrite processor instance.
      *
      * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
@@ -131,13 +125,20 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     }
 
     /**
-     * Process the observer's business logic.
+     * Will be invoked by the action on the events the listener has been registered for.
      *
-     * @return void
+     * @param \TechDivision\Import\Subjects\SubjectInterface $subject The subject instance
+     *
+     * @return array The modified row
      * @throws \Exception Is thrown, if the product is not available or no URL key has been specified
+     * @see \TechDivision\Import\Observers\ObserverInterface::handle()
      */
-    protected function process()
+    public function handle(SubjectInterface $subject)
     {
+
+        // initialize the row
+        $this->setSubject($subject);
+        $this->setRow($subject->getRow());
 
         // try to load the entity ID for the product with the passed SKU
         if ($product = $this->loadProduct($sku = $this->getValue(ColumnKeys::SKU))) {
@@ -148,7 +149,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             // query whether or not we're in debug mode
             if ($this->getSubject()->isDebugMode()) {
                 $this->getSubject()->getSystemLogger()->warning($message);
-                return;
+                return $this->getRow();
             } else {
                 throw new \Exception($message);
             }
@@ -163,8 +164,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             // query whether or not we're in debug mode
             if ($this->getSubject()->isDebugMode()) {
                 $this->getSubject()->getSystemLogger()->warning($message);
+                return $this->getRow();
             } else {
-                return;
                 throw new \Exception($message);
             }
         }
@@ -189,42 +190,41 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 );
 
             // return without creating any rewrites
-            return;
+            return $this->getRow();
         };
 
         // stop processing as we don't want to create URL rewrites for the admin store view
         if ($storeViewCode === StoreViewCodes::ADMIN) {
             // log a message and return
             $this->getSubject()
-                ->getSystemLogger()
-                ->debug(
-                    sprintf(
-                        'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
-                        $storeViewCode,
-                        $sku
-                    )
-                );
+                 ->getSystemLogger()
+                 ->debug(
+                     sprintf(
+                         'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
+                         $storeViewCode,
+                         $sku
+                     )
+                 );
 
             // return without creating any rewrites
-            return;
+            return $this->getRow();
         }
 
         // stop processing if the store is NOT active
-        $this->isStoreViewActive = $this->getSubject()->storeIsActive($storeViewCode);
-        if (!$this->isStoreViewActive) {
+        if (!$this->getSubject()->storeIsActive($storeViewCode)) {
             // log a message and return
             $this->getSubject()
-                ->getSystemLogger()
-                ->debug(
-                    sprintf(
-                        'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
-                        $storeViewCode,
-                        $sku
-                    )
-                );
+                 ->getSystemLogger()
+                 ->debug(
+                     sprintf(
+                         'Store with code "%s" is not active, no URL rewrites will be created for product with SKU "%s"',
+                         $storeViewCode,
+                         $sku
+                     )
+                 );
 
             // return without creating any rewrites
-            return;
+            return $this->getRow();
         }
 
         // only map the visibility for the product row related to the default store view
@@ -237,17 +237,32 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         if (!$this->isVisible()) {
             // log a message
             $this->getSubject()
-                ->getSystemLogger()
-                ->debug(
-                    sprintf(
-                        'Product with SKU "%s" is not visible, so no URL rewrites will be created',
-                        $sku
-                    )
-                );
+                 ->getSystemLogger()
+                 ->debug(
+                     sprintf(
+                         'Product with SKU "%s" is not visible, so no URL rewrites will be created',
+                         $sku
+                     )
+                 );
 
             // return without creating any rewrites
-            return;
+            return $this->getRow();
         }
+
+        // process the functionality and return the row
+        $this->process();
+
+        // return the processed row
+        return $this->getRow();
+    }
+
+    /**
+     * Process the observer's business logic.
+     *
+     * @return void
+     */
+    protected function process()
+    {
 
         // prepare the URL rewrites
         $this->prepareUrlRewrites();
@@ -263,6 +278,14 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                     // persist the URL rewrite
                     $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
 
+                    /*
+                     * Attention! Stop processing, if this is a root category, because Magento needs explicitly
+                     * NO URL rewrite product category relation to render canonical and meta og:url tag!
+                     */
+                    if ($this->isRootCategory($this->getCategory($categoryId))) {
+                        continue;
+                    }
+
                     // initialize and persist the URL rewrite product => category relation
                     $urlRewriteProductCategory = $this->initializeUrlRewriteProductCategory(
                         $this->prepareUrlRewriteProductCategoryAttributes()
@@ -275,8 +298,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                     // query whether or not debug mode has been enabled
                     if ($this->getSubject()->isDebugMode()) {
                         $this->getSubject()
-                            ->getSystemLogger()
-                            ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                             ->getSystemLogger()
+                             ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
                     } else {
                         throw $e;
                     }
@@ -328,25 +351,22 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // at least, add the root category ID to the category => product relations
         $this->productCategoryIds[] = $rootCategory[MemberNames::ENTITY_ID];
 
-        // query whether or not categories has to be used as product URL suffix
-        if ($this->getSubject()->getCoreConfigData(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_USE_CATEGORIES, false)) {
-            // append the category => product relations found
-            foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
-                try {
-                    // try to load the category for the given path
-                    $category = $this->getCategoryByPath(trim($path));
-                    // resolve the product's categories recursively
-                    $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true);
+        // append the category => product relations found
+        foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
+            try {
+                // try to load the category for the given path
+                $category = $this->getCategoryByPath(trim($path));
+                // resolve the product's categories recursively
+                $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true);
 
-                } catch (\Exception $e) {
-                    // query whether or not debug mode has been enabled
-                    if ($this->getSubject()->isDebugMode()) {
-                        $this->getSubject()
-                            ->getSystemLogger()
-                            ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
-                    } else {
-                        throw $e;
-                    }
+            } catch (\Exception $e) {
+                // query whether or not debug mode has been enabled
+                if ($this->getSubject()->isDebugMode()) {
+                    $this->getSubject()
+                         ->getSystemLogger()
+                         ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                } else {
+                    throw $e;
                 }
             }
         }
@@ -392,8 +412,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 $this->productCategoryIds[] = $categoryId;
             } else {
                 $this->getSubject()
-                    ->getSystemLogger()
-                    ->debug(sprintf('Don\'t create URL rewrite for category "%s" because of missing anchor flag', $category[MemberNames::PATH]));
+                     ->getSystemLogger()
+                     ->debug(sprintf('Don\'t create URL rewrite for category "%s" because of missing anchor flag', $category[MemberNames::PATH]));
             }
         }
 
@@ -421,9 +441,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         $category = $this->getCategory($this->categoryId);
 
         // initialize the values
-        $requestPath = $this->prepareRequestPath($category);
+        $metadata = $this->prepareMetadata($category);
         $targetPath = $this->prepareTargetPath($category);
-        $metadata = serialize($this->prepareMetadata($category));
+        $requestPath = $this->prepareRequestPath($category);
 
         // return the prepared URL rewrite
         return $this->initializeEntity(
@@ -436,7 +456,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 MemberNames::STORE_ID         => $storeId,
                 MemberNames::DESCRIPTION      => null,
                 MemberNames::IS_AUTOGENERATED => 1,
-                MemberNames::METADATA         => $metadata
+                MemberNames::METADATA         => $metadata ? serialize($metadata) : null
             )
         );
     }
@@ -452,8 +472,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // return the prepared product
         return $this->initializeEntity(
             array(
-                MemberNames::PRODUCT_ID => $this->entityId,
-                MemberNames::CATEGORY_ID => $this->categoryId,
+                MemberNames::PRODUCT_ID     => $this->entityId,
+                MemberNames::CATEGORY_ID    => $this->categoryId,
                 MemberNames::URL_REWRITE_ID => $this->urlRewriteId
             )
         );
@@ -519,7 +539,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      *
      * @param array $category The category used for preparation
      *
-     * @return array The metadata
+     * @return array|null The metadata
      */
     protected function prepareMetadata(array $category)
     {
@@ -529,7 +549,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
 
         // query whether or not, the passed category IS the root category
         if ($this->isRootCategory($category)) {
-            return $metadata;
+            return;
         }
 
         // if not, set the category ID in the metadata
