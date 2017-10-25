@@ -1,3 +1,13 @@
+# Version 1.0.0-beta9
+
+## Bugfixes
+
+* Fixed invalid metadata und catalog_url_rewrite_product_category relation for URL root category URL rewrites
+
+## Features
+
+* None
+
 # Version 1.0.0-beta8
 
 ## Bugfixes

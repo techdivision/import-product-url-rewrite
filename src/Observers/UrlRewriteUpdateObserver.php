@@ -56,11 +56,6 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
         // process the new URL rewrites first
         parent::process();
 
-        // stop processing if the store is NOT active
-        if (!$this->isStoreViewActive) {
-            return;
-        }
-
         // load the root category
         $rootCategory = $this->getRootCategory();
 
@@ -91,30 +86,51 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                 $metadata = $this->getMetadata($existingUrlRewrite);
 
                 // query whether or not the URL key of the existing URL rewrite has changed
-                if (isset($this->urlRewrites[$metadata[UrlRewriteObserver::CATEGORY_ID]])) {
-                    try {
-                        // if yes, try to load the original category and OVERRIDE the default category
-                        $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID]);
-                    } catch (\Exception $e) {
-                        // if the old category can NOT be loaded, override the metadata
-                        // of the category with the data of the default category
-                        $attr[MemberNames::METADATA] = serialize(array());
+                if (is_array($metadata) && isset($metadata[UrlRewriteObserver::CATEGORY_ID])) {
+                    if (isset($this->urlRewrites[$metadata[UrlRewriteObserver::CATEGORY_ID]])) {
+                        try {
+                            // if yes, try to load the original category and OVERRIDE the default category
+                            $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID]);
+                        } catch (\Exception $e) {
+                            // if the old category can NOT be loaded, remove the
+                            // category ID from the URL rewrites metadata
+                            $attr[MemberNames::METADATA] = null;
 
-                        // finally log a warning that the old category is not available ony more
-                        $this->getSubject()
-                            ->getSystemLogger()
-                            ->warning(sprintf('Category with ID %d is not longer available', $metadata[UrlRewriteObserver::CATEGORY_ID]));
+                            // finally log a warning that the old category is not available ony more
+                            $this->getSubject()
+                                 ->getSystemLogger()
+                                 ->warning(
+                                     sprintf(
+                                         'Category with ID "%d" is not longer available for URL rewrite with ID "%d"',
+                                         $metadata[UrlRewriteObserver::CATEGORY_ID],
+                                         $existingUrlRewrite[MemberNames::URL_REWRITE_ID]
+                                     )
+                                 );
+                        }
                     }
                 }
 
                 // load target path/metadata for the actual category
                 $targetPath = $this->prepareRequestPath($category);
 
-                // skip update of url rewrite, if resulting url rewrite would be invalid
-                if ($targetPath == $attr[MemberNames::REQUEST_PATH]) {
+                // skip update of URL rewrite, if resulting new target path EQUALS old request path
+                if ($targetPath === $existingUrlRewrite[MemberNames::REQUEST_PATH]) {
+                    // finally log a warning that the old category is not available ony more
+                    $this->getSubject()
+                         ->getSystemLogger()
+                         ->warning(
+                             sprintf(
+                                 'New target path "%s" eqals request path for URL rewrite with ID "%d"',
+                                 $existingUrlRewrite[MemberNames::REQUEST_PATH],
+                                 $existingUrlRewrite[MemberNames::URL_REWRITE_ID]
+                             )
+                         );
+
+                    // stop processing the URL rewrite
                     continue;
                 }
 
+                // set the target path
                 $attr[MemberNames::TARGET_PATH] = $targetPath;
 
                 // merge and return the prepared URL rewrite
@@ -133,14 +149,14 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
 
                     // log a message, that old URL rewrites have been cleaned-up
                     $this->getSubject()
-                        ->getSystemLogger()
-                        ->warning(
-                            sprintf(
-                                'Cleaned-up %d URL rewrite "%s" for product with SKU "%s"',
-                                $existingUrlRewrite[MemberNames::REQUEST_PATH],
-                                $this->getValue(ColumnKeys::SKU)
-                            )
-                        );
+                         ->getSystemLogger()
+                         ->warning(
+                             sprintf(
+                                 'Cleaned-up %d URL rewrite "%s" for product with SKU "%s"',
+                                 $existingUrlRewrite[MemberNames::REQUEST_PATH],
+                                 $this->getValue(ColumnKeys::SKU)
+                             )
+                         );
                 }
             }
         }
@@ -215,7 +231,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
             if ($categoryId === $this->getCategoryIdFromMetadata($urlRewrite) &&
                 $attr[MemberNames::REQUEST_PATH] === $urlRewrite[MemberNames::REQUEST_PATH]
             ) {
-                // if a URL rewrite has been found, do NOT create a redirect
+                // if a URL rewrite has been found, do NOT create OR keep an existing redirect
                 $this->removeExistingUrlRewrite($urlRewrite);
 
                 // if the found URL rewrite has been created manually
@@ -247,7 +263,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
         $metadata = $this->getMetadata($attr);
 
         // return the category ID from the metadata
-        return $metadata[UrlRewriteObserver::CATEGORY_ID];
+        return (integer) $metadata[UrlRewriteObserver::CATEGORY_ID];
     }
 
     /**
@@ -298,7 +314,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
 
         // if not, append the ID of the root category
         $rootCategory = $this->getRootCategory();
-        $metadata[UrlRewriteObserver::CATEGORY_ID] = $rootCategory[MemberNames::ENTITY_ID];
+        $metadata[UrlRewriteObserver::CATEGORY_ID] = (integer) $rootCategory[MemberNames::ENTITY_ID];
 
         // and return the metadata
         return $metadata;
