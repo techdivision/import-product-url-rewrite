@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\Import\Product\\UrlRewriteActions\UrlRewriteProductCategoryAction
+ * TechDivision\Import\Product\UrlRewriteActions\UrlRewriteProductCategoryAction
  *
  * NOTICE OF LICENSE
  *
