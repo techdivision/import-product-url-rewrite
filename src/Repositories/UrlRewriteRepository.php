@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\Import\Product\\UrlRewrite\Repositories\UrlRewriteRepository
+ * TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository
  *
  * NOTICE OF LICENSE
  *
