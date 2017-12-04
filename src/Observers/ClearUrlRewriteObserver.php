@@ -22,7 +22,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use TechDivision\Import\Product\Utils\ColumnKeys;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
-use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatements;
+use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
 use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
 
 /**
@@ -78,7 +78,7 @@ class ClearUrlRewriteObserver extends AbstractProductImportObserver
         }
 
         // elete the URL rewrites of the product with the passed SKU
-        $this->deleteUrlRewrite(array(ColumnKeys::SKU => $sku), SqlStatements::DELETE_URL_REWRITE_BY_SKU);
+        $this->deleteUrlRewrite(array(ColumnKeys::SKU => $sku), SqlStatementKeys::DELETE_URL_REWRITE_BY_SKU);
     }
 
     /**

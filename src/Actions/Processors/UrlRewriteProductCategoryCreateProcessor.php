@@ -20,6 +20,7 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Actions\Processors;
 
+use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
 use TechDivision\Import\Actions\Processors\AbstractCreateProcessor;
 
 /**
@@ -43,12 +44,9 @@ class UrlRewriteProductCategoryCreateProcessor extends AbstractCreateProcessor
     protected function getStatements()
     {
 
-        // load the utility class name
-        $utilityClassName = $this->getUtilityClassName();
-
         // return the array with the SQL statements that has to be prepared
         return array(
-            $utilityClassName::CREATE_URL_REWRITE_PRODUCT_CATEGORY => $this->getUtilityClass()->find($utilityClassName::CREATE_URL_REWRITE_PRODUCT_CATEGORY)
+            SqlStatementKeys::CREATE_URL_REWRITE_PRODUCT_CATEGORY => $this->loadStatement(SqlStatementKeys::CREATE_URL_REWRITE_PRODUCT_CATEGORY)
         );
     }
 }

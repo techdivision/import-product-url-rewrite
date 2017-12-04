@@ -21,6 +21,7 @@
 namespace TechDivision\Import\Product\UrlRewrite\Repositories;
 
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
+use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
 
 /**
  * Repository implementation to load URL rewrite data.
@@ -52,11 +53,8 @@ class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteR
         // invoke the parent instance
         parent::init();
 
-        // load the utility class name
-        $utilityClassName = $this->getUtilityClassName();
-
         // initialize the prepared statements
-        $this->urlRewritesBySkuStmt = $this->getConnection()->prepare($this->getUtilityClass()->find($utilityClassName::URL_REWRITES_BY_SKU));
+        $this->urlRewritesBySkuStmt = $this->getConnection()->prepare($this->loadStatement(SqlStatementKeys::URL_REWRITES_BY_SKU));
     }
 
     /**
