@@ -24,6 +24,7 @@ use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\ConfigurationKeys;
+use TechDivision\Import\Utils\StoreViewCodes;
 
 /**
  * Observer that creates/updates the product's URL rewrites.
@@ -324,12 +325,13 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
      * Return's the category with the passed ID.
      *
      * @param integer $categoryId The ID of the category to return
+     * @param string  $storeViewCode The code of an store view; Default 'admin'
      *
      * @return array The category data
      */
-    protected function getCategory($categoryId)
+    protected function getCategory($categoryId, $storeViewCode = StoreViewCodes::ADMIN)
     {
-        return $this->getSubject()->getCategory($categoryId);
+        return $this->getSubject()->getCategory($categoryId, $storeViewCode);
     }
 
     /**

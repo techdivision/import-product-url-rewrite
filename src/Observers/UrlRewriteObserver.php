@@ -357,7 +357,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 // try to load the category for the given path
                 $category = $this->getCategoryByPath(trim($path));
                 // resolve the product's categories recursively
-                $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true);
+                $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true, $this->getValue(ColumnKeys::STORE_VIEW_CODE));
 
             } catch (\Exception $e) {
                 // query whether or not debug mode has been enabled
@@ -388,10 +388,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      *
      * @param integer $categoryId The ID of the category to resolve the parents
      * @param boolean $topLevel   TRUE if the passed category has top level, else FALSE
+     * @param string  $storeViewCode Store view code
      *
      * @return void
      */
-    protected function resolveCategoryIds($categoryId, $topLevel = false)
+    protected function resolveCategoryIds($categoryId, $topLevel = false, $storeViewCode = StoreViewCodes::ADMIN)
     {
 
         // return immediately if this is the absolute root node
@@ -400,7 +401,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         }
 
         // load the data of the category with the passed ID
-        $category = $this->getCategory($categoryId);
+        $category = $this->getCategory($categoryId, $storeViewCode);
 
         // query whether or not the product has already been related
         if (!in_array($categoryId, $this->productCategoryIds)) {
