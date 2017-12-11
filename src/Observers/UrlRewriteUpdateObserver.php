@@ -91,7 +91,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                     if (isset($this->urlRewrites[$metadata[UrlRewriteObserver::CATEGORY_ID]])) {
                         try {
                             // if yes, try to load the original category and OVERRIDE the default category
-                            $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID]);
+                            $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID], $this->getValue(ColumnKeys::STORE_VIEW_CODE));
                         } catch (\Exception $e) {
                             // if the old category can NOT be loaded, remove the
                             // category ID from the URL rewrites metadata
