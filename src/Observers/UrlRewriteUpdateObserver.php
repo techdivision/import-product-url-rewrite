@@ -20,6 +20,7 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
+use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
@@ -90,7 +91,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                     if (isset($this->urlRewrites[$metadata[UrlRewriteObserver::CATEGORY_ID]])) {
                         try {
                             // if yes, try to load the original category and OVERRIDE the default category
-                            $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID]);
+                            $category = $this->getCategory($metadata[UrlRewriteObserver::CATEGORY_ID], $this->getValue(ColumnKeys::STORE_VIEW_CODE));
                         } catch (\Exception $e) {
                             // if the old category can NOT be loaded, remove the
                             // category ID from the URL rewrites metadata
@@ -323,13 +324,14 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
     /**
      * Return's the category with the passed ID.
      *
-     * @param integer $categoryId The ID of the category to return
+     * @param integer $categoryId    The ID of the category to return
+     * @param string  $storeViewCode The store view code of the category to return, defaults to "admin"
      *
      * @return array The category data
      */
-    protected function getCategory($categoryId)
+    protected function getCategory($categoryId, $storeViewCode = StoreViewCodes::ADMIN)
     {
-        return $this->getSubject()->getCategory($categoryId);
+        return $this->getSubject()->getCategory($categoryId, $storeViewCode);
     }
 
     /**

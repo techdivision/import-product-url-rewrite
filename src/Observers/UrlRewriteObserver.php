@@ -351,13 +351,15 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // at least, add the root category ID to the category => product relations
         $this->productCategoryIds[] = $rootCategory[MemberNames::ENTITY_ID];
 
+        $storeViewCode = $this->getValue(ColumnKeys::STORE_VIEW_CODE);
+
         // append the category => product relations found
         foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
             try {
                 // try to load the category for the given path
-                $category = $this->getCategoryByPath(trim($path));
+                $category = $this->getCategoryByPath(trim($path), $storeViewCode);
                 // resolve the product's categories recursively
-                $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true);
+                $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true, $storeViewCode);
 
             } catch (\Exception $e) {
                 // query whether or not debug mode has been enabled
@@ -377,7 +379,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             $this->categoryId = $categoryId;
 
             // prepare the attributes for each URL rewrite
-            $this->urlRewrites[$categoryId] = $this->prepareAttributes();
+            $this->urlRewrites[$categoryId] = $this->prepareAttributes($storeViewCode);
         }
     }
 
@@ -386,12 +388,13 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      * it with the product with the passed ID, if the category is top level OR has the
      * anchor flag set.
      *
-     * @param integer $categoryId The ID of the category to resolve the parents
-     * @param boolean $topLevel   TRUE if the passed category has top level, else FALSE
+     * @param integer $categoryId    The ID of the category to resolve the parents
+     * @param boolean $topLevel      TRUE if the passed category has top level, else FALSE
+     * @param string  $storeViewCode The store view code to resolve the category IDs for
      *
      * @return void
      */
-    protected function resolveCategoryIds($categoryId, $topLevel = false)
+    protected function resolveCategoryIds($categoryId, $topLevel = false, $storeViewCode = StoreViewCodes::ADMIN)
     {
 
         // return immediately if this is the absolute root node
@@ -400,7 +403,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         }
 
         // load the data of the category with the passed ID
-        $category = $this->getCategory($categoryId);
+        $category = $this->getCategory($categoryId, $storeViewCode);
 
         // query whether or not the product has already been related
         if (!in_array($categoryId, $this->productCategoryIds)) {
@@ -429,16 +432,18 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     /**
      * Prepare the attributes of the entity that has to be persisted.
      *
+     * @param string $storeViewCode The store view code to prepare the attributes for
+     *
      * @return array The prepared attributes
      */
-    protected function prepareAttributes()
+    protected function prepareAttributes($storeViewCode)
     {
 
         // load the store ID to use
         $storeId = $this->getSubject()->getRowStoreId();
 
         // load the category to create the URL rewrite for
-        $category = $this->getCategory($this->categoryId);
+        $category = $this->getCategory($this->categoryId, $storeViewCode);
 
         // initialize the values
         $metadata = $this->prepareMetadata($category);
@@ -614,25 +619,27 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     /**
      * Return's the category with the passed path.
      *
-     * @param string $path The path of the category to return
+     * @param string $path          The path of the category to return
+     * @param string $storeViewCode The store view code of the category to return
      *
      * @return array The category
      */
-    protected function getCategoryByPath($path)
+    protected function getCategoryByPath($path, $storeViewCode = StoreViewCodes::ADMIN)
     {
-        return $this->getSubject()->getCategoryByPath($path);
+        return $this->getSubject()->getCategoryByPath($path, $storeViewCode);
     }
 
     /**
      * Return's the category with the passed ID.
      *
-     * @param integer $categoryId The ID of the category to return
+     * @param integer $categoryId    The ID of the category to return
+     * @param string  $storeViewCode The store view code of category to return
      *
      * @return array The category data
      */
-    protected function getCategory($categoryId)
+    protected function getCategory($categoryId, $storeViewCode = StoreViewCodes::ADMIN)
     {
-        return $this->getSubject()->getCategory($categoryId);
+        return $this->getSubject()->getCategory($categoryId, $storeViewCode);
     }
 
     /**
