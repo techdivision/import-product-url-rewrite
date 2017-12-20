@@ -388,9 +388,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      * it with the product with the passed ID, if the category is top level OR has the
      * anchor flag set.
      *
-     * @param integer $categoryId The ID of the category to resolve the parents
-     * @param boolean $topLevel   TRUE if the passed category has top level, else FALSE
-     * @param string  $storeViewCode Store view code
+     * @param integer $categoryId    The ID of the category to resolve the parents
+     * @param boolean $topLevel      TRUE if the passed category has top level, else FALSE
+     * @param string  $storeViewCode The store view code to resolve the category IDs for
      *
      * @return void
      */
@@ -432,7 +432,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     /**
      * Prepare the attributes of the entity that has to be persisted.
      *
-     * @param string $storeViewCode
+     * @param string $storeViewCode The store view code to prepare the attributes for
      *
      * @return array The prepared attributes
      */
@@ -619,8 +619,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     /**
      * Return's the category with the passed path.
      *
-     * @param string $path The path of the category to return
-     * @param string $storeViewCode The code of store view
+     * @param string $path          The path of the category to return
+     * @param string $storeViewCode The store view code of the category to return
      *
      * @return array The category
      */
@@ -632,8 +632,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     /**
      * Return's the category with the passed ID.
      *
-     * @param integer $categoryId The ID of the category to return
-     * @param string $storeViewCode The code of store view
+     * @param integer $categoryId    The ID of the category to return
+     * @param string  $storeViewCode The store view code of category to return
      *
      * @return array The category data
      */

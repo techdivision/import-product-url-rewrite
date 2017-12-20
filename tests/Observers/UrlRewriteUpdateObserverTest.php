@@ -220,10 +220,11 @@ class UrlRewriteUpdateObserverTest extends \PHPUnit_Framework_TestCase
                         array(ColumnKeys::URL_KEY),
                         array(ColumnKeys::STORE_VIEW_CODE),
                         array(ColumnKeys::VISIBILITY),
+                        array(ColumnKeys::STORE_VIEW_CODE),
                         array(ColumnKeys::CATEGORIES),
                         array(ColumnKeys::STORE_VIEW_CODE)
                     )
-                    ->willReturnOnConsecutiveCalls(0, 1, 1, 3, 4, 2, 2);
+                    ->willReturnOnConsecutiveCalls(0, 1, 1, 3, 4, 3, 2, 2);
         $mockSubject->expects($this->once())
                     ->method('hasBeenProcessed')
                     ->willReturn(false);
