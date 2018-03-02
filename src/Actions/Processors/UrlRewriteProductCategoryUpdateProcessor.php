@@ -20,6 +20,7 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Actions\Processors;
 
+use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
 use TechDivision\Import\Actions\Processors\AbstractUpdateProcessor;
 
 /**
@@ -43,12 +44,9 @@ class UrlRewriteProductCategoryUpdateProcessor extends AbstractUpdateProcessor
     protected function getStatements()
     {
 
-        // load the utility class name
-        $utilityClassName = $this->getUtilityClassName();
-
         // return the array with the SQL statements that has to be prepared
         return array(
-            $utilityClassName::UPDATE_URL_REWRITE_PRODUCT_CATEGORY => $this->getUtilityClass()->find($utilityClassName::UPDATE_URL_REWRITE_PRODUCT_CATEGORY)
+            SqlStatementKeys::UPDATE_URL_REWRITE_PRODUCT_CATEGORY => $this->loadStatement(SqlStatementKeys::UPDATE_URL_REWRITE_PRODUCT_CATEGORY)
         );
     }
 }

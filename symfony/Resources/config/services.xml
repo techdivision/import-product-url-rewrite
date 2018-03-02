@@ -5,28 +5,27 @@
 
     <services>
 
-        <service id="import_product_url_rewrite.utility.class.name" class="TechDivision\Import\Product\UrlRewrite\Utils\SqlStatements"/>
-
+        <service id="import_product_url_rewrite.repository.sql.statement" class="TechDivision\Import\Product\UrlRewrite\Repositories\SqlStatementRepository"/>
         <service id="import_product_url_rewrite.repository.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository">
             <argument type="service" id="connection"/>
-            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+            <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
         </service>
         <service id="import_product_url_rewrite.repository.url.rewrite.product.category" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository">
             <argument type="service" id="connection"/>
-            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+            <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
         </service>
 
         <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryCreateProcessor">
             <argument type="service" id="connection"/>
-            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+            <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
         </service>
         <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryDeleteProcessor">
             <argument type="service" id="connection"/>
-            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+            <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
         </service>
         <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.update" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryUpdateProcessor">
             <argument type="service" id="connection"/>
-            <argument type="service" id="import_product_url_rewrite.utility.class.name"/>
+            <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
         </service>
 
         <service id="import_product_url_rewrite.action.url.rewrite.product.category" class="TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction">
