@@ -22,6 +22,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Repositories;
 
 use TechDivision\Import\Repositories\AbstractRepository;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
+use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
 
 /**
  * Repository implementation to load URL rewrite product category relation data.
@@ -42,6 +43,11 @@ class UrlRewriteProductCategoryRepository extends AbstractRepository
      */
     protected $urlRewriteProductCategoryStmt;
 
+    /**
+     * The prepared statement to load the URL rewrite product category relations for the passed SKU.
+     *
+     * @var \PDOStatement
+     */
     protected $urlRewriteProductCategoriesBySkuStmt;
 
     /**
@@ -52,14 +58,11 @@ class UrlRewriteProductCategoryRepository extends AbstractRepository
     public function init()
     {
 
-        // load the utility class name
-        $utilityClassName = $this->getUtilityClassName();
-
         // initialize the prepared statements
         $this->urlRewriteProductCategoryStmt =
-            $this->getConnection()->prepare($this->getUtilityClass()->find($utilityClassName::URL_REWRITE_PRODUCT_CATEGORY));
+            $this->getConnection()->prepare($this->loadStatement(SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORY));
         $this->urlRewriteProductCategoriesBySkuStmt =
-            $this->getConnection()->prepare($this->getUtilityClass()->find($utilityClassName::URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU));
+            $this->getConnection()->prepare($this->loadStatement(SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU));
     }
 
     /**
