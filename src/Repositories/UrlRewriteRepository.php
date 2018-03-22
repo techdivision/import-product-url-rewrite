@@ -32,7 +32,7 @@ use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
-class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteRepository
+class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteRepository implements UrlRewriteRepositoryInterface
 {
 
     /**

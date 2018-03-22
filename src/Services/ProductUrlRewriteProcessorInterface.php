@@ -37,42 +37,42 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
     /**
      * Return's the action with the URL rewrite CRUD methods.
      *
-     * @return \TechDivision\Import\Actions\UrlRewriteAction The action instance
+     * @return \TechDivision\Import\Actions\UrlRewriteActionInterface The action instance
      */
     public function getUrlRewriteAction();
 
     /**
      * Return's the action with the URL rewrite product category CRUD methods.
      *
-     * @return \TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryAction The action instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryActionInterface The action instance
      */
     public function getUrlRewriteProductCategoryAction();
 
     /**
      * Return's the repository to load the product varchar attribute with.
      *
-     * @return \TechDivision\Import\Product\Repositories\ProductVarcharRepository The repository instance
+     * @return \TechDivision\Import\Product\Repositories\ProductVarcharRepositoryInterface The repository instance
      */
     public function getProductVarcharRepository();
 
     /**
      * Return's the repository to load the URL rewrites with.
      *
-     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository The repository instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepositoryInterface The repository instance
      */
     public function getUrlRewriteRepository();
 
     /**
      * Return's the repository to load the URL rewrite product category relations with.
      *
-     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository The repository instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepositoryInterface The repository instance
      */
     public function getUrlRewriteProductCategoryRepository();
 
     /**
      * Return's the repository to load the products with.
      *
-     * @return \TechDivision\Import\Product\Repositories\ProductRepository The repository instance
+     * @return \TechDivision\Import\Product\Repositories\ProductRepositoryInterface The repository instance
      */
     public function getProductRepository();
 
