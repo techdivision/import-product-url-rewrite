@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\Import\Product\UrlRewriteActions\UrlRewriteProductCategoryAction
+ * TechDivision\Import\Product\UrlRewriteActions\UrlRewriteProductCategoryActionInterface
  *
  * NOTICE OF LICENSE
  *
@@ -20,10 +20,10 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Actions;
 
-use TechDivision\Import\Actions\AbstractAction;
+use TechDivision\Import\Actions\ActionInterface;
 
 /**
- * An action implementation that provides CRUD functionality for URL rewrite product category relations.
+ * Interface for action implementations that provides CRUD functionality for URL rewrite product category relations.
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
@@ -31,6 +31,6 @@ use TechDivision\Import\Actions\AbstractAction;
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
-class UrlRewriteProductCategoryAction extends AbstractAction implements UrlRewriteProductCategoryActionInterface
+interface UrlRewriteProductCategoryActionInterface extends ActionInterface
 {
 }

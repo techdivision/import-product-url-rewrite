@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\Import\Product\UrlRewriteActions\UrlRewriteProductCategoryAction
+ * TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepositoryInterface
  *
  * NOTICE OF LICENSE
  *
@@ -18,12 +18,10 @@
  * @link      http://www.techdivision.com
  */
 
-namespace TechDivision\Import\Product\UrlRewrite\Actions;
-
-use TechDivision\Import\Actions\AbstractAction;
+namespace TechDivision\Import\Product\UrlRewrite\Repositories;
 
 /**
- * An action implementation that provides CRUD functionality for URL rewrite product category relations.
+ * Interface for repository implementations to load URL rewrite data.
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
@@ -31,6 +29,15 @@ use TechDivision\Import\Actions\AbstractAction;
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
-class UrlRewriteProductCategoryAction extends AbstractAction implements UrlRewriteProductCategoryActionInterface
+interface UrlRewriteRepositoryInterface extends \TechDivision\Import\Repositories\UrlRewriteRepositoryInterface
 {
+
+    /**
+     * Return's an array with the URL rewrites for the passed SKU.
+     *
+     * @param string $sku The SKU to load the URL rewrites for
+     *
+     * @return array The URL rewrites
+     */
+    public function findAllBySku($sku);
 }
