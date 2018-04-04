@@ -5,3 +5,5 @@
  [![License](https://img.shields.io/packagist/l/techdivision/import-product-url-rewrite.svg?style=flat-square)](https://packagist.org/packages/techdivision/import-product-url-rewrite)
  [![Build Status](https://img.shields.io/travis/techdivision/import-product-url-rewrite/master.svg?style=flat-square)](http://travis-ci.org/techdivision/import-product-url-rewrite)
  [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/techdivision/import-product-url-rewrite/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/techdivision/import-product-url-rewrite/?branch=master) [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/techdivision/import-product-url-rewrite/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/techdivision/import-product-url-rewrite/?branch=master)
+
+Please visit the M2IF [website](https://m2if.com) for documentation and additional information
