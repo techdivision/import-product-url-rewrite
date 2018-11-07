@@ -1,3 +1,13 @@
+# Version 2.0.1
+
+## Bugfixes
+
+* Replace serialize/unserialie with json_encode/json_decode methods
+
+## Features
+
+* None
+
 # Version 2.0.0
 
 ## Bugfixes
