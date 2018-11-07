@@ -304,7 +304,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
 
         // try to unserialize the metadata from the passed URL rewrite
         if (isset($urlRewrite[MemberNames::METADATA])) {
-            $metadata = unserialize($urlRewrite[MemberNames::METADATA]);
+            $metadata = json_decode($urlRewrite[MemberNames::METADATA], true);
         }
 
         // query whether or not a category ID has been found
