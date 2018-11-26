@@ -293,7 +293,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
 
                     // persist the URL rewrite product category relation
                     $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
-
                 } catch (\Exception $e) {
                     // query whether or not debug mode has been enabled
                     if ($this->getSubject()->isDebugMode()) {
@@ -360,7 +359,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 $category = $this->getCategoryByPath(trim($path), $storeViewCode);
                 // resolve the product's categories recursively
                 $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true, $storeViewCode);
-
             } catch (\Exception $e) {
                 // query whether or not debug mode has been enabled
                 if ($this->getSubject()->isDebugMode()) {

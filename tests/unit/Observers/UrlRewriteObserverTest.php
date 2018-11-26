@@ -26,6 +26,7 @@ use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
+use TechDivision\Import\Adapter\SerializerAwareAdapterInterface;
 
 /**
  * Test class for the product URL rewrite observer implementation.
@@ -246,15 +247,12 @@ class UrlRewriteObserverTest extends \PHPUnit_Framework_TestCase
              $path6 = 'Default Category/Collections/Eco Friendly'       => array(MemberNames::ENTITY_ID => 7, MemberNames::PARENT_ID => 6, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'collections/eco-friendly', MemberNames::PATH => $path6),
         );
 
-        // create a mock configuration
-        $mockSubjectConfiguration = $this->getMockBuilder('TechDivision\Import\Configuration\SubjectConfigurationInterface')
-                                         ->setMethods(get_class_methods('TechDivision\Import\Configuration\SubjectConfigurationInterface'))
-                                         ->getMock();
-
-        // mock the methods
-        $mockSubjectConfiguration->expects($this->once())
-                                 ->method('getDelimiter')
-                                 ->willReturn(',');
+        // initialize a mock import adapter instance
+        $mockImportAdapter = $this->getMockBuilder(SerializerAwareAdapterInterface::class)->getMock();
+        $mockImportAdapter->expects($this->once())
+            ->method('explode')
+            ->with($row[2])
+            ->willReturn(array('Default Category/Men/Tops/Hoodies & Sweatshirts', 'Default Category/Collections/Eco Friendly', 'Default Category'));
 
         // mock the system logger
         $mockSystemLogger = $this->getMockBuilder('Psr\Log\LoggerInterface')
@@ -280,14 +278,12 @@ class UrlRewriteObserverTest extends \PHPUnit_Framework_TestCase
                                     'isDebugMode',
                                     'storeIsActive',
                                     'getCategoryByPath',
-                                    'getSystemLogger'
+                                    'getSystemLogger',
+                                    'getImportAdapter'
                                 )
                             )
                             ->disableOriginalConstructor()
                             ->getMock();
-
-        // set the mock configuration on the subject
-        $mockSubject->setConfiguration($mockSubjectConfiguration);
 
         // mock the methods
         $mockSubject->expects($this->any())
@@ -393,6 +389,9 @@ class UrlRewriteObserverTest extends \PHPUnit_Framework_TestCase
                         array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html')
                     )
                     ->willReturnOnConsecutiveCalls('.html', '.html', '.html');
+       $mockSubject->expects(($this->once()))
+                    ->method('getImportAdapter')
+                    ->willReturn($mockImportAdapter);
 
         // mock the processor methods
         $this->mockProductUrlRewriteProcessor->expects($this->once())
