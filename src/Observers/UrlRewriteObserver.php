@@ -151,7 +151,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 $this->getSubject()->getSystemLogger()->warning($message);
                 return $this->getRow();
             } else {
-                throw new \Exception($message);
+                throw new \Exception($this->appendExceptionSuffix($message));
             }
         }
 
@@ -166,7 +166,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                 $this->getSubject()->getSystemLogger()->warning($message);
                 return $this->getRow();
             } else {
-                throw new \Exception($message);
+                throw new \Exception($this->appendExceptionSuffix($message));
             }
         }
 
@@ -529,10 +529,12 @@ class UrlRewriteObserver extends AbstractProductImportObserver
 
         // throw an exception if the category's "url_path" attribute is NOT available
         throw new \RuntimeException(
-            sprintf(
-                'Can\'t find mandatory attribute "%s" for category ID "%d", necessary to build a valid "request_path"',
-                MemberNames::URL_PATH,
-                $category[MemberNames::ENTITY_ID]
+            $this->appendExceptionSuffix(
+                sprintf(
+                    'Can\'t find mandatory attribute "%s" for category ID "%d", necessary to build a valid "request_path"',
+                    MemberNames::URL_PATH,
+                    $category[MemberNames::ENTITY_ID]
+                )
             )
         );
     }
