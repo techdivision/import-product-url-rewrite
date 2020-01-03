@@ -20,6 +20,7 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
+use PHPUnit\Framework\TestCase;
 use TechDivision\Import\Utils\EntityStatus;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
@@ -37,7 +38,7 @@ use TechDivision\Import\Adapter\SerializerAwareAdapterInterface;
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
-class UrlRewriteObserverTest extends \PHPUnit_Framework_TestCase
+class UrlRewriteObserverTest extends TestCase
 {
 
     /**
@@ -59,7 +60,7 @@ class UrlRewriteObserverTest extends \PHPUnit_Framework_TestCase
      * This method is called before a test is executed.
      *
      * @return void
-     * @see \PHPUnit_Framework_TestCase::setUp()
+     * @see \PHPUnit\Framework\TestCase::setUp()
      */
     protected function setUp()
     {
