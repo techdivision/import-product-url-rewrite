@@ -1,3 +1,13 @@
+# Version 18.0.2
+
+## Bugfixes
+
+* Fixed PHPUnit testsuite
+
+## Features
+
+* None
+
 # Version 18.0.1
 
 ## Bugfixes
