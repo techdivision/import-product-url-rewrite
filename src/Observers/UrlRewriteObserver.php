@@ -558,7 +558,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         }
 
         // if not, set the category ID in the metadata
-        $metadata[UrlRewriteObserver::CATEGORY_ID] = (integer) $category[MemberNames::ENTITY_ID];
+        $metadata[UrlRewriteObserver::CATEGORY_ID] = (string) $category[MemberNames::ENTITY_ID];
 
         // return the metadata
         return $metadata;

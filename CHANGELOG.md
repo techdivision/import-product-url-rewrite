@@ -1,3 +1,13 @@
+# Version 17.0.1
+
+## Bugfixes
+
+* Fixed invalid product URL rewrite metadata that results in dead product URL rewrites
+
+## Features
+
+* None
+
 # Version 17.0.0
 
 ## Bugfixes
