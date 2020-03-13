@@ -1,3 +1,13 @@
+# Version 17.0.2
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Remove duplicated SQLs and SQL statement keys
+
 # Version 17.0.1
 
 ## Bugfixes
