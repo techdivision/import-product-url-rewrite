@@ -1,3 +1,13 @@
+# Version 19.0.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Remove duplicated SQLs and SQL statement keys
+
 # Version 18.0.2
 
 ## Bugfixes
