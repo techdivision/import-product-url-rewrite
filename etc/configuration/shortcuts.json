@@ -1,0 +1,29 @@
+{
+  "shortcuts": {
+    "general": {
+      "catalog_product_url": {
+        "delete": [
+          "general/general/move-files",
+          "general/general/global-data",
+          "general/catalog_product_url/collect-data",
+          "general/catalog_product_url/validate",
+          "general/catalog_product_url/delete"
+        ],
+        "replace": [
+          "general/general/move-files",
+          "general/general/global-data",
+          "general/catalog_product_url/collect-data",
+          "general/catalog_product_url/validate",
+          "general/catalog_product_url/replace"
+        ],
+        "add-update": [
+          "general/general/move-files",
+          "general/general/global-data",
+          "general/catalog_product_url/collect-data",
+          "general/catalog_product_url/validate",
+          "general/catalog_product_url/add-update"
+        ]
+      }
+    }
+  }
+}

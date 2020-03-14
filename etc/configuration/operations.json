@@ -1,0 +1,146 @@
+{
+  "operations": {
+    "general": {
+      "catalog_product_url": {
+        "validate": {
+          "plugins": {
+            "subject": {
+              "id": "import.plugin.subject",
+              "listeners": [
+                {
+                  "plugin.process.success": [
+                    "import.listener.stop.validation"
+                  ]
+                }
+              ],
+              "subjects": [
+                {
+                  "id": "import.subject.validator",
+                  "create-imported-file": false,
+                  "file-resolver": {
+                    "prefix": "url-rewrite"
+                  },
+                  "params" : {
+                    "custom-validations" : {
+                      "sku" :  [ "/.+/" ]
+                    }
+                  },
+                  "observers": [
+                    {
+                      "import": [
+                        "import.observer.generic.validator"
+                      ]
+                    }
+                  ],
+                  "callbacks": [
+                    {
+                      "sku": [ "import.callback.custom.regex.validator" ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "collect-data": {
+          "plugins": {
+            "subject": {
+              "id": "import.plugin.subject",
+              "subjects": [
+                {
+                  "id": "import.subject.validator",
+                  "create-imported-file": false,
+                  "file-resolver": {
+                    "prefix": "url-rewrite"
+                  },
+                  "params" : {
+                    "collect-columns": [
+                      "sku"
+                    ]
+                  },
+                  "observers": [
+                    {
+                      "import": [
+                        "import.observer.generic.column.collector"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "delete": {
+          "plugins": {
+            "subject": {
+              "id": "import.plugin.subject",
+              "subjects": [
+                {
+                  "id": "import_product_url_rewrite.subject.url.rewrite",
+                  "file-resolver": {
+                    "prefix": "url-rewrite"
+                  },
+                  "observers": [
+                    {
+                      "import": [
+                        "import_product_url_rewrite.observer.clear.url.rewrite"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "replace": {
+          "plugins": {
+            "subject": {
+              "id": "import.plugin.subject",
+              "subjects": [
+                {
+                  "id": "import_product_url_rewrite.subject.url.rewrite",
+                  "file-resolver": {
+                    "prefix": "url-rewrite"
+                  },
+                  "observers": [
+                    {
+                      "import": [
+                        "import_product_url_rewrite.observer.clear.url.rewrite",
+                        "import_product_url_rewrite.observer.url.rewrite"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "add-update": {
+          "plugins": {
+            "subject": {
+              "id": "import.plugin.subject",
+              "subjects": [
+                {
+                  "id": "import_product_url_rewrite.subject.url.rewrite",
+                  "file-resolver": {
+                    "prefix": "url-rewrite"
+                  },
+                  "params": {
+                    "clean-up-url-rewrites": true
+                  },
+                  "observers": [
+                    {
+                      "import": [
+                        "import_product_url_rewrite.observer.url.rewrite.update"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
