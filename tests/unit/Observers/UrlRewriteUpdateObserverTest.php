@@ -117,10 +117,20 @@ class UrlRewriteUpdateObserverTest extends TestCase
 
         // initialize a mock import adapter instance
         $mockImportAdapter = $this->getMockBuilder(SerializerAwareAdapterInterface::class)->getMock();
-        $mockImportAdapter->expects($this->once())
+        $mockImportAdapter->expects($this->exactly(4))
             ->method('explode')
-            ->with($row[2])
-            ->willReturn(array('Default Category/Men/Tops/Hoodies & Sweatshirts', 'Default Category/Collections/Eco Friendly', 'Default Category'));
+            ->withConsecutive(
+                array($row[2]),
+                array('Default Category/Men/Tops/Hoodies & Sweatshirts'),
+                array('Default Category/Collections/Eco Friendly'),
+                array('Default Category')
+            )
+            ->willReturnOnConsecutiveCalls(
+                array('Default Category/Men/Tops/Hoodies & Sweatshirts', 'Default Category/Collections/Eco Friendly', 'Default Category'),
+                array('Default Category', 'Men', 'Tops', 'Hoodies & Sweatshirts'),
+                array('Default Category', 'Collections', 'Eco Friendly'),
+                array('Default Category')
+            );
 
         // mock the system logger
         $mockSystemLogger = $this->getMockBuilder('Psr\Log\LoggerInterface')
@@ -302,7 +312,7 @@ class UrlRewriteUpdateObserverTest extends TestCase
                         array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html')
                     )
                     ->willReturnOnConsecutiveCalls('.html', '.html', '.html', true, '.html', true, '.html', true, '.html', '.html');
-        $mockSubject->expects($this->any())
+        $mockSubject->expects($this->exactly(4))
                     ->method('getImportAdapter')
                     ->willReturn($mockImportAdapter);
 

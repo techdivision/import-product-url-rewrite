@@ -355,6 +355,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // append the category => product relations found
         foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
             try {
+                // downgrade the path
+                $path = implode('/', $this->explode($path, '/'));
                 // try to load the category for the given path
                 $category = $this->getCategoryByPath(trim($path), $storeViewCode);
                 // resolve the product's categories recursively
