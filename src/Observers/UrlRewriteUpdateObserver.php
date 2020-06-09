@@ -25,6 +25,7 @@ use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\ConfigurationKeys;
+use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
 
 /**
  * Observer that creates/updates the product's URL rewrites.
@@ -145,14 +146,17 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
                     $this->getSubject()->getConfiguration()->getParam(ConfigurationKeys::CLEAN_UP_URL_REWRITES)
                 ) {
                     // delete the existing URL rewrite
-                    $this->deleteUrlRewrite($existingUrlRewrite);
+                    $this->deleteUrlRewrite(
+                        array(MemberNames::URL_REWRITE_ID => $existingUrlRewrite[MemberNames::URL_REWRITE_ID]),
+                        SqlStatementKeys::DELETE_URL_REWRITE
+                    );
 
                     // log a message, that old URL rewrites have been cleaned-up
                     $this->getSubject()
                          ->getSystemLogger()
                          ->warning(
                              sprintf(
-                                 'Cleaned-up %d URL rewrite "%s" for product with SKU "%s"',
+                                 'Cleaned-up URL rewrite "%s" for product with SKU "%s"',
                                  $existingUrlRewrite[MemberNames::REQUEST_PATH],
                                  $this->getValue(ColumnKeys::SKU)
                              )
@@ -370,6 +374,6 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
      */
     protected function deleteUrlRewrite($row, $name = null)
     {
-        $this->getProductUrlRewriteProcessor()->removeUrlRewrite($row, $name);
+        $this->getProductUrlRewriteProcessor()->deleteUrlRewrite($row, $name);
     }
 }
