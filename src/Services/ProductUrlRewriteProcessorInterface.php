@@ -37,14 +37,14 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
     /**
      * Return's the action with the URL rewrite CRUD methods.
      *
-     * @return \TechDivision\Import\Actions\UrlRewriteActionInterface The action instance
+     * @return \TechDivision\Import\Actions\ActionInterface The action instance
      */
     public function getUrlRewriteAction();
 
     /**
      * Return's the action with the URL rewrite product category CRUD methods.
      *
-     * @return \TechDivision\Import\Product\UrlRewrite\Actions\UrlRewriteProductCategoryActionInterface The action instance
+     * @return \TechDivision\Import\Actions\ActionInterface The action instance
      */
     public function getUrlRewriteProductCategoryAction();
 

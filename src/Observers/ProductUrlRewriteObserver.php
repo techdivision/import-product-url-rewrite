@@ -80,7 +80,6 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
             foreach ($websiteCodes as $websiteCode) {
                 $storeViewCodes = array_merge($storeViewCodes, $this->getStoreViewCodesByWebsiteCode($websiteCode));
             }
-
         } else {
             array_push($storeViewCodes, $storeViewCode);
         }
@@ -104,7 +103,6 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                         $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getSubject()->getLineNumber();
                     }
                 }
-
             } else {
                 // if no arefacts are available, append new data
                 $artefact = $this->newArtefact(
