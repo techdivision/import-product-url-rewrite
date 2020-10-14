@@ -439,7 +439,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             true
         );
 
-        // abort if option is set and category is not root
+        // abort if generating product categories is disabled and category is not root
         if ($generateCategoryRewrites === false && $this->isRootCategory($category) === false) {
             return;
         }
