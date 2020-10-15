@@ -434,10 +434,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         }
 
         // load the backend configuration value for whether or not the catalog product rewrites should be generated
-        $generateCategoryRewrites = (bool) $this->getSubject()->getCoreConfigData(
-            CoreConfigDataKeys::CATALOG_SEO_GENERATE_CATEGORY_PRODUCT_REWRITES,
-            true
-        );
+        $generateCategoryRewrites = $this->getGenerateCategoryProductRewritesOptionValue();
 
         // abort if generating product categories is disabled and category is not root
         if ($generateCategoryRewrites === false && $this->isRootCategory($category) === false) {
@@ -458,6 +455,19 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                     $category[MemberNames::PATH]
                 )
             );
+    }
+
+    /**
+     * Returns the option value for whether or not to generate product catalog rewrites as well.
+     *
+     * @return bool
+     */
+    protected function getGenerateCategoryProductRewritesOptionValue()
+    {
+        return (bool) $this->getSubject()->getCoreConfigData(
+            CoreConfigDataKeys::CATALOG_SEO_GENERATE_CATEGORY_PRODUCT_REWRITES,
+            true
+        );
     }
 
     /**

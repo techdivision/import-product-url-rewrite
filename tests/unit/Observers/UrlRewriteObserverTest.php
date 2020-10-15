@@ -21,6 +21,7 @@
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use TechDivision\Import\Utils\EntityStatus;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
@@ -74,8 +75,50 @@ class UrlRewriteObserverTest extends TestCase
         $this->observer = new UrlRewriteObserver($this->mockProductUrlRewriteProcessor);
     }
 
+    protected function createAndInvokeObserver($generateCategoryProductRewrites = true, $productCategoryIds = [], $category = [])
+    {
+        $observer = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver')
+            ->setConstructorArgs([$this->mockProductUrlRewriteProcessor])
+            ->setMethods(['getGenerateCategoryProductRewritesOptionValue'])
+            ->getMock();
+
+        $observer->expects($this->any())
+            ->method('getGenerateCategoryProductRewritesOptionValue')
+            ->willReturn($generateCategoryProductRewrites);
+
+        // prepare protected properties of observer
+        $reflection = new ReflectionClass('TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver');
+        $property = $reflection->getProperty('productCategoryIds');
+        $property->setAccessible(true);
+        $property->setValue($observer, $productCategoryIds);
+
+        // invoke the method to test
+        $method = $reflection->getMethod('createProductCategoryRelation');
+        $method->setAccessible(true);
+        $method->invoke($observer, $category, true);
+
+        return $property->getValue($observer);
+    }
+
+    public function testCreateProductCategoryRelationWithChildCategoryAndSettingEnabled()
+    {
+
+        // initialize method arguments
+        $generateCategoryProductRewrites = true;
+        $productCategoryIds = ['2'];
+        $category = [
+            'entity_id' => '10',
+            'is_anchor' => '0'
+        ];
+
+        // create and invoke the partially mocked observer
+        $productCategoryIds = $this->createAndInvokeObserver($generateCategoryProductRewrites, $productCategoryIds, $category);
+
+        $this->assertSame($productCategoryIds, ['2', '10']);
+    }
+
     /**
-     * Test's the handle() method with a successfull URL rewrite persist.
+     * Test's the handle() method with a successful URL rewrite persist.
      *
      * @return void
      */
@@ -210,7 +253,7 @@ class UrlRewriteObserverTest extends TestCase
     }
 
     /**
-     * Test's the handle() method with a successfull URL rewrite persist when using the same categories.
+     * Test's the handle() method with a successful URL rewrite persist when using the same categories.
      *
      * @return void
      */
