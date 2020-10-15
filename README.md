@@ -1,4 +1,4 @@
-# M2IF - Product URL Rewrite Import
+# Pacemaker - Product URL Rewrite Import
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/techdivision/import-product-url-rewrite.svg?style=flat-square)](https://packagist.org/packages/techdivision/import-product-url-rewrite) 
  [![Total Downloads](https://img.shields.io/packagist/dt/techdivision/import-product-url-rewrite.svg?style=flat-square)](https://packagist.org/packages/techdivision/import-product-url-rewrite)
