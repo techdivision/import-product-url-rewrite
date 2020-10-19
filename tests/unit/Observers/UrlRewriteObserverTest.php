@@ -79,12 +79,16 @@ class UrlRewriteObserverTest extends TestCase
     {
         $observer = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver')
             ->setConstructorArgs([$this->mockProductUrlRewriteProcessor])
-            ->setMethods(['getGenerateCategoryProductRewritesOptionValue'])
+            ->setMethods(['getGenerateCategoryProductRewritesOptionValue', 'isRootCategory'])
             ->getMock();
 
         $observer->expects($this->any())
             ->method('getGenerateCategoryProductRewritesOptionValue')
             ->willReturn($generateCategoryProductRewrites);
+
+        $observer->expects($this->any())
+            ->method('isRootCategory')
+            ->willReturn(false);
 
         // prepare protected properties of observer
         $reflection = new ReflectionClass('TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver');
@@ -115,6 +119,23 @@ class UrlRewriteObserverTest extends TestCase
         $productCategoryIds = $this->createAndInvokeObserver($generateCategoryProductRewrites, $productCategoryIds, $category);
 
         $this->assertSame($productCategoryIds, ['2', '10']);
+    }
+
+    public function testCreateProductCategoryRelationWithChildCategoryAndSettingDisabled()
+    {
+
+        // initialize method arguments
+        $generateCategoryProductRewrites = false;
+        $productCategoryIds = ['2'];
+        $category = [
+            'entity_id' => '10',
+            'is_anchor' => '0'
+        ];
+
+        // create and invoke the partially mocked observer
+        $productCategoryIds = $this->createAndInvokeObserver($generateCategoryProductRewrites, $productCategoryIds, $category);
+
+        $this->assertSame($productCategoryIds, ['2']);
     }
 
     /**
@@ -435,14 +456,13 @@ class UrlRewriteObserverTest extends TestCase
         $mockSubject->expects($this->any())
                     ->method('getRowStoreId')
                     ->willReturn($storeId = 1);
-        $mockSubject->expects($this->exactly(3))
+        $mockSubject->expects($this->any())
                     ->method('getCoreConfigData')
-                    ->withConsecutive(
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html'),
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html'),
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html')
-                    )
-                    ->willReturnOnConsecutiveCalls('.html', '.html', '.html');
+                    ->will(
+                        $this->returnCallback(function ($arg1, $arg2) {
+                            return $arg2;
+                        })
+                    );
        $mockSubject->expects(($this->exactly(4)))
                     ->method('getImportAdapter')
                     ->willReturn($mockImportAdapter);
