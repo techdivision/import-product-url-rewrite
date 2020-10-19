@@ -298,20 +298,13 @@ class UrlRewriteUpdateObserverTest extends TestCase
         $mockSubject->expects($this->any())
                     ->method('getRowStoreId')
                     ->willReturn($storeId = 1);
-        $mockSubject->expects($this->exactly(9))
+        $mockSubject->expects($this->any())
                     ->method('getCoreConfigData')
-                    ->withConsecutive(
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html'),
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html'),
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html'),
-                        array(CoreConfigDataKeys::CATALOG_SEO_SAVE_REWRITES_HISTORY, true),
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html'),
-                        array(CoreConfigDataKeys::CATALOG_SEO_SAVE_REWRITES_HISTORY, true),
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html'),
-                        array(CoreConfigDataKeys::CATALOG_SEO_SAVE_REWRITES_HISTORY, true),
-                        array(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html')
-                    )
-                    ->willReturnOnConsecutiveCalls('.html', '.html', '.html', true, '.html', true, '.html', true, '.html', '.html');
+                    ->will(
+                        $this->returnCallback(function ($arg1, $arg2) {
+                            return $arg2;
+                        })
+                    );
         $mockSubject->expects($this->exactly(4))
                     ->method('getImportAdapter')
                     ->willReturn($mockImportAdapter);
