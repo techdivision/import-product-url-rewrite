@@ -20,9 +20,9 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
+use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
-use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
@@ -405,20 +405,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // load the data of the category with the passed ID
         $category = $this->getCategory($categoryId, $storeViewCode);
 
-        // query whether or not the product has already been related
-        if (!in_array($categoryId, $this->productCategoryIds)) {
-            if ($topLevel) {
-                // relate it, if the category is top level
-                $this->productCategoryIds[] = $categoryId;
-            } elseif ((integer) $category[MemberNames::IS_ANCHOR] === 1) {
-                // also relate it, if the category is not top level, but has the anchor flag set
-                $this->productCategoryIds[] = $categoryId;
-            } else {
-                $this->getSubject()
-                     ->getSystemLogger()
-                     ->debug(sprintf('Don\'t create URL rewrite for category "%s" because of missing anchor flag', $category[MemberNames::PATH]));
-            }
-        }
+        // create the product category relation for the current category
+        $this->createProductCategoryRelation($category, $topLevel);
 
         // load the root category
         $rootCategory = $this->getRootCategory();
@@ -427,6 +415,61 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         if ($rootCategory[MemberNames::ENTITY_ID] !== ($parentId = $category[MemberNames::PARENT_ID])) {
             $this->resolveCategoryIds($parentId, false);
         }
+    }
+
+    /**
+     * Adds the entity product relation if necessary.
+     *
+     * @param array   $category The category to create the relation for
+     * @param boolean $topLevel Whether or not the category has top level
+     *
+     * @return void
+     */
+    private function createProductCategoryRelation($category, $topLevel)
+    {
+
+        // query whether or not the product has already been related
+        if (in_array($category[MemberNames::ENTITY_ID], $this->productCategoryIds)) {
+            return;
+        }
+
+        // load the backend configuration value for whether or not the catalog product rewrites should be generated
+        $generateCategoryRewrites = $this->getGenerateCategoryProductRewritesOptionValue();
+
+        // abort if generating product categories is disabled and category is not root
+        if ($generateCategoryRewrites === false && $this->isRootCategory($category) === false) {
+            return;
+        }
+
+        // create relation if the category is top level or has the anchor flag set
+        if ($topLevel || (integer) $category[MemberNames::IS_ANCHOR] === 1) {
+            $this->productCategoryIds[] = $category[MemberNames::ENTITY_ID];
+            return;
+        }
+
+        // log a debug messsage that the URL rewrite has not
+        // been created because of the missing anchor flag
+        $this->getSubject()
+            ->getSystemLogger()
+            ->debug(
+                sprintf(
+                    'Don\'t create URL rewrite for category "%s" because of missing anchor flag',
+                    $category[MemberNames::PATH]
+                )
+            );
+    }
+
+    /**
+     * Returns the option value for whether or not to generate product catalog rewrites as well.
+     *
+     * @return bool
+     */
+    private function getGenerateCategoryProductRewritesOptionValue()
+    {
+        return (bool) $this->getSubject()->getCoreConfigData(
+            CoreConfigDataKeys::CATALOG_SEO_GENERATE_CATEGORY_PRODUCT_REWRITES,
+            true
+        );
     }
 
     /**
