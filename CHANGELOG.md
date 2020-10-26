@@ -6,7 +6,7 @@
 
 ## Features
 
-* PAC-252 - Only generate category product rewrites if enabled in backend (backport)
+* Add #PAC-252: Only generate category product rewrites if enabled in backend (backport)
 
 # Version 24.0.0
 
