@@ -25,10 +25,11 @@ use ReflectionClass;
 use TechDivision\Import\Utils\EntityStatus;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
-use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Adapter\SerializerAwareAdapterInterface;
+use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
+use TechDivision\Import\Product\UrlRewrite\Subjects\UrlRewriteSubject;
 
 /**
  * Test class for the product URL rewrite observer implementation.
@@ -75,23 +76,46 @@ class UrlRewriteObserverTest extends TestCase
         $this->observer = new UrlRewriteObserver($this->mockProductUrlRewriteProcessor);
     }
 
+    /**
+     * Create's and invokes the UrlRewriteObserver instance.
+     *
+     * @param boolean $generateCategoryProductRewrites Whether or not the configuration to generare catagory/product URL rewrites has been activated
+     * @param array   $productCategoryIds              The array with the category IDs the product has been related with
+     * @param array   $category                        The array with the categories
+     *
+     * @return void
+     */
     private function createAndInvokeObserver($generateCategoryProductRewrites = true, $productCategoryIds = [], $category = [])
     {
-        $observer = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver')
+
+        // create a mock subject
+        $mockSubject = $this->getMockBuilder(UrlRewriteSubject::class)
+                            ->setMethods(array('getCoreConfigData'))
+                            ->disableOriginalConstructor()
+                            ->getMock();
+
+        // mock the method to load the Magento configuration data with
+        $mockSubject->expects($this->exactly(1))
+                            ->method('getCoreConfigData')
+                            ->with(CoreConfigDataKeys::CATALOG_SEO_GENERATE_CATEGORY_PRODUCT_REWRITES)
+                            ->willReturn($generateCategoryProductRewrites);
+
+        // mock the observer
+        $observer = $this->getMockBuilder(UrlRewriteObserver::class)
             ->setConstructorArgs([$this->mockProductUrlRewriteProcessor])
-            ->setMethods(['getGenerateCategoryProductRewritesOptionValue', 'isRootCategory'])
+            ->setMethods(['getGenerateCategoryProductRewritesOptionValue', 'isRootCategory', 'getSubject'])
             ->getMock();
 
         $observer->expects($this->any())
-            ->method('getGenerateCategoryProductRewritesOptionValue')
-            ->willReturn($generateCategoryProductRewrites);
+            ->method('getSubject')
+            ->willReturn($mockSubject);
 
         $observer->expects($this->any())
             ->method('isRootCategory')
             ->willReturn(false);
 
         // prepare protected properties of observer
-        $reflection = new ReflectionClass('TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver');
+        $reflection = new ReflectionClass(UrlRewriteObserver::class);
         $property = $reflection->getProperty('productCategoryIds');
         $property->setAccessible(true);
         $property->setValue($observer, $productCategoryIds);
@@ -101,9 +125,16 @@ class UrlRewriteObserverTest extends TestCase
         $method->setAccessible(true);
         $method->invoke($observer, $category, true);
 
+        // return category IDs the URL rewrites has been created for
         return $property->getValue($observer);
     }
 
+    /**
+     * Invoke a test to make sure that all categories that
+     * have been related to a product have been processed.
+     *
+     * @return void
+     */
     public function testCreateProductCategoryRelationWithChildCategoryAndSettingEnabled()
     {
 
@@ -118,9 +149,16 @@ class UrlRewriteObserverTest extends TestCase
         // create and invoke the partially mocked observer
         $productCategoryIds = $this->createAndInvokeObserver($generateCategoryProductRewrites, $productCategoryIds, $category);
 
+        // assert that all categories have been processed
         $this->assertSame($productCategoryIds, ['2', '10']);
     }
 
+    /**
+     * Invoke a test to make sure that only the root category has been
+     * processed, when the flag in the configuration has been activated.
+     *
+     * @return void
+     */
     public function testCreateProductCategoryRelationWithChildCategoryAndSettingDisabled()
     {
 
@@ -135,6 +173,7 @@ class UrlRewriteObserverTest extends TestCase
         // create and invoke the partially mocked observer
         $productCategoryIds = $this->createAndInvokeObserver($generateCategoryProductRewrites, $productCategoryIds, $category);
 
+        // assert that only the root category ID has been processed
         $this->assertSame($productCategoryIds, ['2']);
     }
 

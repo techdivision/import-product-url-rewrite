@@ -447,6 +447,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             return;
         }
 
+        // log a debug messsage that the URL rewrite has not
+        // been created because of the missing anchor flag
         $this->getSubject()
             ->getSystemLogger()
             ->debug(
