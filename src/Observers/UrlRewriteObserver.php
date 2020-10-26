@@ -20,9 +20,9 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
+use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
-use TechDivision\Import\Product\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
