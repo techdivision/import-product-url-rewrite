@@ -1,3 +1,13 @@
+# TBA
+
+## Bugfixes
+
+* None
+
+## Features
+
+* PAC-252 - Only generate category product rewrites if enabled in backend
+
 # Version 24.0.0
 
 ## Bugfixes
