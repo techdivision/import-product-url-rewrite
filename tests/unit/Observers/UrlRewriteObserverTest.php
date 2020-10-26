@@ -75,7 +75,7 @@ class UrlRewriteObserverTest extends TestCase
         $this->observer = new UrlRewriteObserver($this->mockProductUrlRewriteProcessor);
     }
 
-    protected function createAndInvokeObserver($generateCategoryProductRewrites = true, $productCategoryIds = [], $category = [])
+    private function createAndInvokeObserver($generateCategoryProductRewrites = true, $productCategoryIds = [], $category = [])
     {
         $observer = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver')
             ->setConstructorArgs([$this->mockProductUrlRewriteProcessor])

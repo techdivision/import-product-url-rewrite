@@ -425,7 +425,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      *
      * @return void
      */
-    protected function createProductCategoryRelation($category, $topLevel)
+    private function createProductCategoryRelation($category, $topLevel)
     {
 
         // query whether or not the product has already been related
@@ -462,7 +462,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      *
      * @return bool
      */
-    protected function getGenerateCategoryProductRewritesOptionValue()
+    private function getGenerateCategoryProductRewritesOptionValue()
     {
         return (bool) $this->getSubject()->getCoreConfigData(
             CoreConfigDataKeys::CATALOG_SEO_GENERATE_CATEGORY_PRODUCT_REWRITES,
