@@ -161,7 +161,7 @@ class UrlRewriteObserverTest extends TestCase
      *
      * @return void
      */
-    /* public function testCreateProductCategoryRelationWithChildCategoryAndSettingDisabled()
+    public function testCreateProductCategoryRelationWithChildCategoryAndSettingDisabled()
     {
 
         // initialize method arguments
@@ -177,7 +177,7 @@ class UrlRewriteObserverTest extends TestCase
 
         // assert that only the root category ID has been processed
         $this->assertSame($productCategoryIds, ['2']);
-    } */
+    }
 
     /**
      * Test's the handle() method with a successful URL rewrite persist.
