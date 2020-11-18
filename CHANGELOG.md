@@ -6,7 +6,7 @@
 
 ## Features
 
-* Merge with 24.x branch
+* Add #PAC-273: Update product 301 URL redirects to forward to active URL rewrite
 
 # 24.1.0
 
