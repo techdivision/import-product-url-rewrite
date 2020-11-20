@@ -1,3 +1,13 @@
+# Version 24.1.1
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add #PAC-273: Update product 301 URL redirects to forward to active URL rewrite
+
 # Version 24.1.0
 
 ## Bugfixes
