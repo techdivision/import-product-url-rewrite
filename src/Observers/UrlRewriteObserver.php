@@ -405,6 +405,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // load the data of the category with the passed ID
         $category = $this->getCategory($categoryId, $storeViewCode);
 
+        // if the category is not a child of the root category we have to skip it
+        if (!$this->isChildOfRootCategory($category)) {
+            return;
+        }
+
         // create the product category relation for the current category
         $this->createProductCategoryRelation($category, $topLevel);
 
@@ -415,6 +420,24 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         if ($rootCategory[MemberNames::ENTITY_ID] !== ($parentId = $category[MemberNames::PARENT_ID])) {
             $this->resolveCategoryIds($parentId, false);
         }
+    }
+
+    /**
+     * Check if category is a child of the root category
+     *
+     * @param array $category The category to check
+     *
+     * @return bool
+     */
+    protected function isChildOfRootCategory($category)
+    {
+        // split the path into its segments
+        $categoryPathParts = explode('/', $category[MemberNames::PATH]);
+
+        // load the root category
+        $rootCategory = $this->getRootCategory();
+
+        return $categoryPathParts[1] === $rootCategory[MemberNames::ENTITY_ID];
     }
 
     /**
