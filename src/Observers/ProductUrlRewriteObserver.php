@@ -54,7 +54,6 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
      * Process the observer's business logic.
      *
      * @return array The processed row
-     * @todo See PAC-307
      */
     protected function process()
     {
