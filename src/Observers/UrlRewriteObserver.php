@@ -336,7 +336,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                  ->debug(
                      sprintf(
                          'Product with SKU "%s" is not visible, so no URL rewrites will be created',
-                         $sku
+                         $this->getValue(ColumnKeys::SKU)
                      )
                  );
 
