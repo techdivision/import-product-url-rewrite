@@ -96,7 +96,11 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                     // query whether or not a URL key has be specfied and the store view codes are equal
                     if ($this->hasValue(ColumnKeys::URL_KEY) && $this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
                         // update the URL key
-                        $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
+                        $this->artefacts[$i][ColumnKeys::URL_KEY]    = $this->getValue(ColumnKeys::URL_KEY);
+                        // update the visibility, if available
+                        if ($this->hasValue(ColumnKeys::VISIBILITY)) {
+                            $this->artefacts[$i][ColumnKeys::VISIBILITY] = $this->getValue(ColumnKeys::VISIBILITY);
+                        }
 
                         // also update filename and line number
                         $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_FILENAME] = $this->getSubject()->getFilename();
