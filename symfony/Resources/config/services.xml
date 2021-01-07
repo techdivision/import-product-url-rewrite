@@ -33,7 +33,7 @@
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
         </service>
 
-        <service id="import_product_url_rewrite.action.url.rewrite.product.category" class="TechDivision\Import\Actions\GenericAction">
+        <service id="import_product_url_rewrite.action.url.rewrite.product.category" class="TechDivision\Import\Dbal\Actions\GenericAction">
             <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create"/>
             <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.update"/>
             <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete"/>
