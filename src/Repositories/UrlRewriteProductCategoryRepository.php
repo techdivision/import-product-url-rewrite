@@ -20,7 +20,7 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Repositories;
 
-use TechDivision\Import\Dbal\Repositories\AbstractRepository;
+use TechDivision\Import\Dbal\Collection\Repositories\AbstractRepository;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
 

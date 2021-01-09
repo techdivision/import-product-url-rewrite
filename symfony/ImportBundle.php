@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\Import\Product\ImportBundle
+ * TechDivision\Import\Product\UrlRewrite\ImportBundle
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * @link      http://www.techdivision.com
  */
 
-namespace TechDivision\Import\Product;
+namespace TechDivision\Import\Product\UrlRewrite;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
