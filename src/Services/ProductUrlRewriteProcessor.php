@@ -20,8 +20,8 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Services;
 
-use TechDivision\Import\Actions\ActionInterface;
-use TechDivision\Import\Connection\ConnectionInterface;
+use TechDivision\Import\Dbal\Actions\ActionInterface;
+use TechDivision\Import\Dbal\Connection\ConnectionInterface;
 use TechDivision\Import\Product\Repositories\ProductRepositoryInterface;
 use TechDivision\Import\Product\Repositories\ProductVarcharRepositoryInterface;
 use TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepositoryInterface;
@@ -42,21 +42,21 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * A PDO connection initialized with the values from the Doctrine EntityManager.
      *
-     * @var \TechDivision\Import\Connection\ConnectionInterface
+     * @var \TechDivision\Import\Dbal\Connection\ConnectionInterface
      */
     protected $connection;
 
     /**
      * The action for URL rewrite CRUD methods.
      *
-     * @var \TechDivision\Import\Actions\ActionInterface
+     * @var \TechDivision\Import\Dbal\Actions\ActionInterface
      */
     protected $urlRewriteAction;
 
     /**
      * The action for URL rewrite product category CRUD methods.
      *
-     * @var \TechDivision\Import\Actions\ActionInterface
+     * @var \TechDivision\Import\Dbal\Actions\ActionInterface
      */
     protected $urlRewriteProductCategoryAction;
 
@@ -84,13 +84,13 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Initialize the processor with the necessary assembler and repository instances.
      *
-     * @param \TechDivision\Import\Connection\ConnectionInterface                                               $connection                          The connection to use
+     * @param \TechDivision\Import\Dbal\Connection\ConnectionInterface                                          $connection                          The connection to use
      * @param \TechDivision\Import\Product\Repositories\ProductRepositoryInterface                              $productRepository                   The product repository to use
      * @param \TechDivision\Import\Product\Repositories\ProductVarcharRepositoryInterface                       $productVarcharRepository            The product varchar repository to use
      * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepositoryInterface                $urlRewriteRepository                The URL rewrite repository to use
      * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepositoryInterface $urlRewriteProductCategoryRepository The URL rewrite product category repository to use
-     * @param \TechDivision\Import\Actions\ActionInterface                                                      $urlRewriteAction                    The URL rewrite action to use
-     * @param \TechDivision\Import\Actions\ActionInterface                                                      $urlRewriteProductCategoryAction     The URL rewrite product category action to use
+     * @param \TechDivision\Import\Dbal\Actions\ActionInterface                                                 $urlRewriteAction                    The URL rewrite action to use
+     * @param \TechDivision\Import\Dbal\Actions\ActionInterface                                                 $urlRewriteProductCategoryAction     The URL rewrite product category action to use
      */
     public function __construct(
         ConnectionInterface $connection,
@@ -113,7 +113,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Set's the passed connection.
      *
-     * @param \TechDivision\Import\Connection\ConnectionInterface $connection The connection to set
+     * @param \TechDivision\Import\Dbal\Connection\ConnectionInterface $connection The connection to set
      *
      * @return void
      */
@@ -125,7 +125,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Return's the connection.
      *
-     * @return \TechDivision\Import\Connection\ConnectionInterface The connection instance
+     * @return \TechDivision\Import\Dbal\Connection\ConnectionInterface The connection instance
      */
     public function getConnection()
     {
@@ -179,7 +179,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Set's the action with the URL rewrite CRUD methods.
      *
-     * @param \TechDivision\Import\Actions\ActionInterface $urlRewriteAction The action with the URL rewrite CRUD methods
+     * @param \TechDivision\Import\Dbal\Actions\ActionInterface $urlRewriteAction The action with the URL rewrite CRUD methods
      *
      * @return void
      */
@@ -191,7 +191,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Return's the action with the URL rewrite CRUD methods.
      *
-     * @return \TechDivision\Import\Actions\ActionInterface The action instance
+     * @return \TechDivision\Import\Dbal\Actions\ActionInterface The action instance
      */
     public function getUrlRewriteAction()
     {
@@ -201,7 +201,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Set's the action with the URL rewrite product category CRUD methods.
      *
-     * @param \TechDivision\Import\Actions\ActionInterface $urlRewriteProductCategoryAction The action with the URL rewrite CRUD methods
+     * @param \TechDivision\Import\Dbal\Actions\ActionInterface $urlRewriteProductCategoryAction The action with the URL rewrite CRUD methods
      *
      * @return void
      */
@@ -213,7 +213,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     /**
      * Return's the action with the URL rewrite product category CRUD methods.
      *
-     * @return \TechDivision\Import\Actions\ActionInterface The action instance
+     * @return \TechDivision\Import\Dbal\Actions\ActionInterface The action instance
      */
     public function getUrlRewriteProductCategoryAction()
     {

@@ -1,0 +1,7 @@
+{
+  "finder-mappings": {
+    "product_url_rewrite": {
+      "TechDivision\\Import\\Product\\UrlRewrite\\Utils\\SqlStatementKeys::URL_REWRITES_BY_SKU": "import.repository.finder.factory.yielded"
+    }
+  }
+}

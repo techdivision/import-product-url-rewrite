@@ -11,26 +11,44 @@
         <service id="import_product_url_rewrite.repository.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository">
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
+            <argument type="service" id="import.repository.finder.factory.configurable"/>
+            <argument type="service" id="import.processor.registry"/>
+            <argument type="service" id="import.loader.core.config.data"/>
         </service>
         <service id="import_product_url_rewrite.repository.url.rewrite.product.category" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository">
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
         </service>
 
-        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryCreateProcessor">
+        <!--
+         | The DI action processor configuration
+         |-->
+        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create" class="TechDivision\Import\Dbal\Collection\Actions\Processors\GenericProcessor">
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
+            <argument type="service" id="import.util.sql.sanitizers"/>
+            <argument type="collection">
+                <argument type="constant">TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys::CREATE_URL_REWRITE_PRODUCT_CATEGORY</argument>
+            </argument>
         </service>
-        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryDeleteProcessor">
+        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete" class="TechDivision\Import\Dbal\Collection\Actions\Processors\GenericProcessor">
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
+            <argument type="service" id="import.util.sql.sanitizers"/>
+            <argument type="collection">
+                <argument type="constant">TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys::DELETE_URL_REWRITE_PRODUCT_CATEGORY</argument>
+            </argument>
         </service>
-        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.update" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryUpdateProcessor">
+        <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.update" class="TechDivision\Import\Dbal\Collection\Actions\Processors\GenericProcessor">
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
+            <argument type="service" id="import.util.sql.sanitizers"/>
+            <argument type="collection">
+                <argument type="constant">TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys::UPDATE_URL_REWRITE_PRODUCT_CATEGORY</argument>
+            </argument>
         </service>
 
-        <service id="import_product_url_rewrite.action.url.rewrite.product.category" class="TechDivision\Import\Actions\GenericAction">
+        <service id="import_product_url_rewrite.action.url.rewrite.product.category" class="TechDivision\Import\Dbal\Collection\Actions\GenericAction">
             <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create"/>
             <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.update"/>
             <argument type="service" id="import_product_url_rewrite.action.processor.url.rewrite.product.category.delete"/>

@@ -232,23 +232,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             $this->addEntityIdVisibilityIdMapping($this->getValue(ColumnKeys::VISIBILITY));
         }
 
-        // do NOT create new URL rewrites, if the product is NOT visible (any more), BUT
-        // handle existing URL rewrites, e. g. to remove and clean up the URL rewrites
-        if (!$this->isVisible()) {
-            // log a message
-            $this->getSubject()
-                 ->getSystemLogger()
-                 ->debug(
-                     sprintf(
-                         'Product with SKU "%s" is not visible, so no URL rewrites will be created',
-                         $sku
-                     )
-                 );
-
-            // return without creating any rewrites
-            return $this->getRow();
-        }
-
         // process the functionality and return the row
         $this->process();
 
@@ -344,12 +327,30 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         $this->urlRewrites = array();
         $this->productCategoryIds = array();
 
+        // do NOT create new URL rewrites, if the product is NOT visible (any more), BUT
+        // handle existing URL rewrites, e. g. to remove and clean up the URL rewrites
+        if (!$this->isVisible()) {
+             // log a message
+             $this->getSubject()
+                 ->getSystemLogger()
+                 ->debug(
+                     sprintf(
+                         'Product with SKU "%s" is not visible, so no URL rewrites will be created',
+                         $this->getValue(ColumnKeys::SKU)
+                     )
+                 );
+
+             // return without creating any rewrites
+             return;
+        }
+
         // load the root category, because we need that to create the default product URL rewrite
         $rootCategory = $this->getRootCategory();
 
         // at least, add the root category ID to the category => product relations
         $this->productCategoryIds[] = $rootCategory[MemberNames::ENTITY_ID];
 
+        // load the store view code from the appropriate column
         $storeViewCode = $this->getValue(ColumnKeys::STORE_VIEW_CODE);
 
         // append the category => product relations found

@@ -34,14 +34,6 @@ use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
  */
 class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteRepository implements UrlRewriteRepositoryInterface
 {
-
-    /**
-     * The prepared statement to load the existing URL rewrites by a SKU.
-     *
-     * @var \PDOStatement
-     */
-    protected $urlRewritesBySkuStmt;
-
     /**
      * Initializes the repository's prepared statements.
      *
@@ -54,7 +46,7 @@ class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteR
         parent::init();
 
         // initialize the prepared statements
-        $this->urlRewritesBySkuStmt = $this->getConnection()->prepare($this->loadStatement(SqlStatementKeys::URL_REWRITES_BY_SKU));
+        $this->addFinder($this->finderFactory->createFinder($this, SqlStatementKeys::URL_REWRITES_BY_SKU));
     }
 
     /**
@@ -71,7 +63,8 @@ class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteR
         $params = array(MemberNames::SKU => $sku);
 
         // load and return the URL rewrites for the passed SKU
-        $this->urlRewritesBySkuStmt->execute($params);
-        return $this->urlRewritesBySkuStmt->fetchAll(\PDO::FETCH_ASSOC);
+        foreach ($this->getFinder(SqlStatementKeys::URL_REWRITES_BY_SKU)->find($params) as $result) {
+            yield $result;
+        }
     }
 }
