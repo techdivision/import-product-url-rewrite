@@ -28,6 +28,7 @@ use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
 use TechDivision\Import\Subjects\SubjectInterface;
+use TechDivision\Import\Utils\CategoryPathUtilInterface;
 
 /**
  * Observer that creates/updates the product's URL rewrites.
@@ -105,13 +106,24 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected $productUrlRewriteProcessor;
 
     /**
+     * The utility to handle catgory paths.
+     *
+     * @var \TechDivision\Import\Utils\CategoryPathUtilInterface
+     */
+    protected $categoryPathUtil;
+
+    /**
      * Initialize the observer with the passed product URL rewrite processor instance.
      *
      * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
+     * @param \TechDivision\Import\Utils\CategoryPathUtilInterface                                 $categoryPathUtil           The utility to handle category paths
      */
-    public function __construct(ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor)
-    {
+    public function __construct(
+        ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor,
+        CategoryPathUtilInterface $categoryPathUtil
+    ) {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
+        $this->categoryPathUtil = $categoryPathUtil;
     }
 
     /**
@@ -353,13 +365,14 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // load the store view code from the appropriate column
         $storeViewCode = $this->getValue(ColumnKeys::STORE_VIEW_CODE);
 
+        // load the category paths from the import file
+        $paths = $this->categoryPathUtil->fromProduct($this->getValue(ColumnKeys::CATEGORIES));
+
         // append the category => product relations found
-        foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
+        foreach ($paths as $elements) {
             try {
-                // downgrade the path
-                $path = implode('/', $this->explode($path, '/'));
                 // try to load the category for the given path
-                $category = $this->getCategoryByPath(trim($path), $storeViewCode);
+                $category = $this->getCategoryByPath($this->categoryPathUtil->implode($elements), $storeViewCode);
                 // resolve the product's categories recursively
                 $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true, $storeViewCode);
             } catch (\Exception $e) {
