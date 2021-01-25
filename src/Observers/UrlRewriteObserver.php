@@ -20,16 +20,15 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
-use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
+
 use TechDivision\Import\Utils\StoreViewCodes;
+use TechDivision\Import\Subjects\SubjectInterface;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
+use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
-use TechDivision\Import\Subjects\SubjectInterface;
-use TechDivision\Import\Utils\CategoryPathUtilInterface;
-
 /**
  * Observer that creates/updates the product's URL rewrites.
  *
@@ -106,24 +105,13 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected $productUrlRewriteProcessor;
 
     /**
-     * The utility to handle catgory paths.
-     *
-     * @var \TechDivision\Import\Utils\CategoryPathUtilInterface
-     */
-    protected $categoryPathUtil;
-
-    /**
      * Initialize the observer with the passed product URL rewrite processor instance.
      *
      * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
-     * @param \TechDivision\Import\Utils\CategoryPathUtilInterface                                 $categoryPathUtil           The utility to handle category paths
      */
-    public function __construct(
-        ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor,
-        CategoryPathUtilInterface $categoryPathUtil
-    ) {
+    public function __construct(ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor)
+    {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
-        $this->categoryPathUtil = $categoryPathUtil;
     }
 
     /**
@@ -366,13 +354,13 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         $storeViewCode = $this->getValue(ColumnKeys::STORE_VIEW_CODE);
 
         // load the category paths from the import file
-        $paths = $this->categoryPathUtil->fromProduct($this->getValue(ColumnKeys::CATEGORIES));
+        $paths = $this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode'));
 
         // append the category => product relations found
-        foreach ($paths as $elements) {
+        foreach ($paths as $path) {
             try {
                 // try to load the category for the given path
-                $category = $this->getCategoryByPath($this->categoryPathUtil->implode($elements), $storeViewCode);
+                $category = $this->getCategoryByPath($path, $storeViewCode);
                 // resolve the product's categories recursively
                 $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true, $storeViewCode);
             } catch (\Exception $e) {
