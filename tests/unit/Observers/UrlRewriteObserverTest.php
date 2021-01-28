@@ -360,7 +360,7 @@ class UrlRewriteObserverTest extends TestCase
 
         // initialize a mock import adapter instance
         $mockImportAdapter = $this->getMockBuilder(SerializerAwareAdapterInterface::class)->getMock();
-        $mockImportAdapter->expects($this->exactly(4))
+        $mockImportAdapter->expects($this->exactly(1))
             ->method('explode')
             ->withConsecutive(
                 array($row[2]),
@@ -487,7 +487,7 @@ class UrlRewriteObserverTest extends TestCase
                             return $arg2;
                         })
                     );
-       $mockSubject->expects(($this->exactly(4)))
+       $mockSubject->expects(($this->exactly(1)))
                     ->method('getImportAdapter')
                     ->willReturn($mockImportAdapter);
 

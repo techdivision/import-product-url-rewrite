@@ -27,6 +27,7 @@ use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Adapter\SerializerAwareAdapterInterface;
+use TechDivision\Import\Product\UrlRewrite\Subjects\UrlRewriteSubject;
 
 /**
  * Test class for the product URL rewrite update observer implementation.
@@ -64,6 +65,10 @@ class UrlRewriteUpdateObserverTest extends TestCase
     protected function setUp()
     {
 
+        // mock the subject instance used to initialize the
+        $mockSubject = $this->getMockBuilder(UrlRewriteSubject::class)->setMethods(get_class_methods(UrlRewriteSubject::class))->disableOriginalConstructor()->getMock();
+        $mockSubject->expects($this->any())->method('getRootCategories')->willReturn(array(array(MemberNames::ENTITY_ID => 2)));
+
         // initialize a mock processor instance
         $this->mockProductUrlRewriteProcessor = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface')
                                                      ->setMethods(get_class_methods('TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface'))
@@ -71,6 +76,7 @@ class UrlRewriteUpdateObserverTest extends TestCase
 
         // initialize the observer
         $this->observer = new UrlRewriteUpdateObserver($this->mockProductUrlRewriteProcessor);
+        $this->observer = $this->observer->createObserver($mockSubject);
     }
 
     /**
@@ -116,7 +122,7 @@ class UrlRewriteUpdateObserverTest extends TestCase
 
         // initialize a mock import adapter instance
         $mockImportAdapter = $this->getMockBuilder(SerializerAwareAdapterInterface::class)->getMock();
-        $mockImportAdapter->expects($this->exactly(4))
+        $mockImportAdapter->expects($this->exactly(1))
             ->method('explode')
             ->withConsecutive(
                 array($row[2]),
@@ -246,7 +252,7 @@ class UrlRewriteUpdateObserverTest extends TestCase
                         $categories[$path6],
                         $categories[$path1]
                     );
-        $mockSubject->expects($this->exactly(14))
+        $mockSubject->expects($this->any())
                     ->method('getCategory')
                     ->will(
                         $this->returnCallback(function ($categoryId, $storeViewCode) use ($categories) {
@@ -280,7 +286,7 @@ class UrlRewriteUpdateObserverTest extends TestCase
                             return $arg2;
                         })
                     );
-        $mockSubject->expects($this->exactly(4))
+        $mockSubject->expects($this->exactly(1))
                     ->method('getImportAdapter')
                     ->willReturn($mockImportAdapter);
 
