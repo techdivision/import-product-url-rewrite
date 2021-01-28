@@ -58,7 +58,9 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
         // process the new URL rewrites first
         parent::process();
 
-        // load the root category
+        // load the root category of the default store view (as we're in the
+        // default row and does not have a store view code), because we need
+        // that to handle the default product URL rewrite
         $rootCategory = $this->getRootCategory();
 
         // create redirect URL rewrites for the existing URL rewrites

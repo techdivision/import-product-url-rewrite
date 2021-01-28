@@ -67,6 +67,10 @@ class UrlRewriteObserverTest extends TestCase
     protected function setUp()
     {
 
+        // mock the subject instance used to initialize the
+        $mockSubject = $this->getMockBuilder(UrlRewriteSubject::class)->setMethods(get_class_methods(UrlRewriteSubject::class))->disableOriginalConstructor()->getMock();
+        $mockSubject->expects($this->any())->method('getRootCategories')->willReturn(array(array(MemberNames::ENTITY_ID => 2)));
+
         // initialize a mock processor instance
         $this->mockProductUrlRewriteProcessor = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface')
                                                      ->setMethods(get_class_methods('TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface'))
@@ -74,6 +78,7 @@ class UrlRewriteObserverTest extends TestCase
 
         // initialize the observer
         $this->observer = new UrlRewriteObserver($this->mockProductUrlRewriteProcessor);
+        $this->observer = $this->observer->createObserver($mockSubject);
     }
 
     /**
@@ -271,7 +276,7 @@ class UrlRewriteObserverTest extends TestCase
                     ->method('getCategory')
                     ->with($categoryId)
                     ->willReturn($category = array(MemberNames::ENTITY_ID => $categoryId, MemberNames::PARENT_ID => 1, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => null));
-        $mockSubject->expects($this->exactly(5))
+        $mockSubject->expects($this->exactly(1))
                     ->method('getRootCategory')
                     ->willReturn($category);
         $mockSubject->expects($this->once())
@@ -448,38 +453,16 @@ class UrlRewriteObserverTest extends TestCase
                         $categories[$path6],
                         $categories[$path1]
                     );
-        $mockSubject->expects($this->exactly(13))
+        $mockSubject->expects($this->any())
                     ->method('getCategory')
-                    ->withConsecutive(
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path3][MemberNames::ENTITY_ID]),
-                        array($categories[$path2][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID]),
-                        array($categories[$path5][MemberNames::ENTITY_ID]),
-                        array($categories[$path2][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID])
-                    )
-                    ->willReturnOnConsecutiveCalls(
-                        $categories[$path4],
-                        $categories[$path3],
-                        $categories[$path2],
-                        $categories[$path6],
-                        $categories[$path5],
-                        $categories[$path2],
-                        $categories[$path1],
-                        $categories[$path1],
-                        $categories[$path4],
-                        $categories[$path6],
-                        $categories[$path1],
-                        $categories[$path4],
-                        $categories[$path6]
-                    );
+                    ->will(
+                        $this->returnCallback(function ($categoryId, $storeViewCode) use ($categories) {
+                            foreach ($categories as $category) {
+                                if ((int) $category[MemberNames::ENTITY_ID] === (int) $categoryId) {
+                                    return $category;
+                                }
+                            }
+                        }));
         $mockSubject->expects($this->any())
                     ->method('getRootCategory')
                     ->willReturn($categories[$path1]);

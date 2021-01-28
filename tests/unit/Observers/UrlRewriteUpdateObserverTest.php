@@ -248,38 +248,14 @@ class UrlRewriteUpdateObserverTest extends TestCase
                     );
         $mockSubject->expects($this->exactly(14))
                     ->method('getCategory')
-                    ->withConsecutive(
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path3][MemberNames::ENTITY_ID]),
-                        array($categories[$path2][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID]),
-                        array($categories[$path5][MemberNames::ENTITY_ID]),
-                        array($categories[$path2][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID])
-                    )
-                    ->willReturnOnConsecutiveCalls(
-                        $categories[$path4],
-                        $categories[$path3],
-                        $categories[$path2],
-                        $categories[$path6],
-                        $categories[$path5],
-                        $categories[$path2],
-                        $categories[$path1],
-                        $categories[$path1],
-                        $categories[$path4],
-                        $categories[$path6],
-                        $categories[$path1],
-                        $categories[$path4],
-                        $categories[$path6],
-                        $categories[$path1]
-                    );
+                    ->will(
+                        $this->returnCallback(function ($categoryId, $storeViewCode) use ($categories) {
+                            foreach ($categories as $category) {
+                                if ((int) $category[MemberNames::ENTITY_ID] === (int) $categoryId) {
+                                    return $category;
+                                }
+                            }
+                        }));
         $mockSubject->expects($this->any())
                     ->method('getRootCategory')
                     ->willReturn(array(MemberNames::ENTITY_ID =>  2, MemberNames::PARENT_ID => 1, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => null));
