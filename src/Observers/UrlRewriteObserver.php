@@ -20,14 +20,15 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
-use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Utils\StoreViewCodes;
+use TechDivision\Import\Subjects\SubjectInterface;
+use TechDivision\Import\Observers\ObserverFactoryInterface;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
+use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
-use TechDivision\Import\Subjects\SubjectInterface;
 
 /**
  * Observer that creates/updates the product's URL rewrites.
@@ -38,7 +39,7 @@ use TechDivision\Import\Subjects\SubjectInterface;
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
-class UrlRewriteObserver extends AbstractProductImportObserver
+class UrlRewriteObserver extends AbstractProductImportObserver implements ObserverFactoryInterface
 {
 
     /**
@@ -98,6 +99,13 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected $productCategoryIds = array();
 
     /**
+     * The array with the root categories.
+     *
+     * @var array
+     */
+    protected $rootCategories = array();
+
+    /**
      * The product bunch processor instance.
      *
      * @var \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface
@@ -112,6 +120,29 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     public function __construct(ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor)
     {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
+    }
+
+    /**
+     * Will be invoked by the observer visitor when a factory has been defined to create the observer instance.
+     *
+     * @param \TechDivision\Import\Subjects\SubjectInterface $subject The subject instance
+     *
+     * @return \TechDivision\Import\Observers\ObserverInterface The observer instance
+     */
+    public function createObserver(SubjectInterface $subject)
+    {
+
+        // load the root categories
+        $rootCategories = $subject->getRootCategories();
+
+        // initialize the array with the root categories
+        // by using the entity ID as index
+        foreach ($rootCategories as $rootCategory) {
+            $this->rootCategories[(int) $rootCategory[MemberNames::ENTITY_ID]] = $rootCategory;
+        }
+
+        // return the initialized instance
+        return $this;
     }
 
     /**
@@ -344,7 +375,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver
              return;
         }
 
-        // load the root category, because we need that to create the default product URL rewrite
+        // load the root category of the default store view (as we're in the
+        // default row and does not have a store view code), because we need
+        // that to create the default product URL rewrite
         $rootCategory = $this->getRootCategory();
 
         // at least, add the root category ID to the category => product relations
@@ -353,13 +386,14 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // load the store view code from the appropriate column
         $storeViewCode = $this->getValue(ColumnKeys::STORE_VIEW_CODE);
 
+        // load the category paths from the import file
+        $paths = $this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode'));
+
         // append the category => product relations found
-        foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
+        foreach ($paths as $path) {
             try {
-                // downgrade the path
-                $path = implode('/', $this->explode($path, '/'));
                 // try to load the category for the given path
-                $category = $this->getCategoryByPath(trim($path), $storeViewCode);
+                $category = $this->getCategoryByPath($path, $storeViewCode);
                 // resolve the product's categories recursively
                 $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true, $storeViewCode);
             } catch (\Exception $e) {
@@ -374,13 +408,10 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             }
         }
 
-        // prepare the URL rewrites
-        foreach ($this->productCategoryIds as $categoryId) {
-            // set the category ID
-            $this->categoryId = $categoryId;
-
-            // prepare the attributes for each URL rewrite
-            $this->urlRewrites[$categoryId] = $this->prepareAttributes($storeViewCode);
+        // initialize the member varialbe with the category ID
+        // and prepare the attributes for each URL rewrite
+        foreach ($this->productCategoryIds as $this->categoryId) {
+            $this->urlRewrites[$this->categoryId] = $this->prepareAttributes($storeViewCode);
         }
     }
 
@@ -398,24 +429,19 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected function resolveCategoryIds($categoryId, $topLevel = false, $storeViewCode = StoreViewCodes::ADMIN)
     {
 
-        // return immediately if this is the absolute root node
-        if ((integer) $categoryId === 1) {
-            return;
-        }
-
         // load the data of the category with the passed ID
         $category = $this->getCategory($categoryId, $storeViewCode);
+
+        // return immediately if this is a root category
+        if ($this->isRootCategory($category)) {
+            return;
+        }
 
         // create the product category relation for the current category
         $this->createProductCategoryRelation($category, $topLevel);
 
-        // load the root category
-        $rootCategory = $this->getRootCategory();
-
         // try to resolve the parent category IDs
-        if ($rootCategory[MemberNames::ENTITY_ID] !== ($parentId = $category[MemberNames::PARENT_ID])) {
-            $this->resolveCategoryIds($parentId, false);
-        }
+        $this->resolveCategoryIds($category[MemberNames::PARENT_ID], false, $storeViewCode);
     }
 
     /**
@@ -652,12 +678,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      */
     protected function isRootCategory(array $category)
     {
-
-        // load the root category
-        $rootCategory = $this->getRootCategory();
-
-        // compare the entity IDs and return the result
-        return $rootCategory[MemberNames::ENTITY_ID] === $category[MemberNames::ENTITY_ID];
+        return isset($this->rootCategories[$category[MemberNames::ENTITY_ID]]);
     }
 
     /**
