@@ -95,7 +95,7 @@ class UrlRewriteObserverTest extends TestCase
                             ->getMock();
 
         // mock the method to load the Magento configuration data with
-        $mockSubject->expects($this->exactly(1))
+        $mockSubject->expects($this->any())
                             ->method('getCoreConfigData')
                             ->with(CoreConfigDataKeys::CATALOG_SEO_GENERATE_CATEGORY_PRODUCT_REWRITES)
                             ->willReturn($generateCategoryProductRewrites);
@@ -103,7 +103,7 @@ class UrlRewriteObserverTest extends TestCase
         // mock the observer
         $observer = $this->getMockBuilder(UrlRewriteObserver::class)
             ->setConstructorArgs([$this->mockProductUrlRewriteProcessor])
-            ->setMethods(['getGenerateCategoryProductRewritesOptionValue', 'isRootCategory', 'getSubject'])
+            ->setMethods(['isRootCategory', 'getSubject'])
             ->getMock();
 
         $observer->expects($this->any())
@@ -268,8 +268,8 @@ class UrlRewriteObserverTest extends TestCase
         $mockSubject->expects($this->exactly(2))
                     ->method('getCategory')
                     ->with($categoryId)
-                    ->willReturn($category = array(MemberNames::ENTITY_ID => $categoryId, MemberNames::PARENT_ID => 1, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => null));
-        $mockSubject->expects($this->exactly(5))
+                    ->willReturn($category = array(MemberNames::ENTITY_ID => $categoryId, MemberNames::PARENT_ID => 1, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => null, MemberNames::LEVEL => 1));
+        $mockSubject->expects($this->any())
                     ->method('getRootCategory')
                     ->willReturn($category);
         $mockSubject->expects($this->once())
@@ -343,12 +343,12 @@ class UrlRewriteObserverTest extends TestCase
 
         // initialize the categories
         $categories = array(
-             $path1 = 'Default Category'                                => array(MemberNames::ENTITY_ID => 2, MemberNames::PARENT_ID => 1, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => null, MemberNames::PATH => $path1),
-             $path2 = 'Default Category/Men'                            => array(MemberNames::ENTITY_ID => 3, MemberNames::PARENT_ID => 2, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'men', MemberNames::PATH => $path2),
-             $path3 = 'Default Category/Men/Tops'                       => array(MemberNames::ENTITY_ID => 4, MemberNames::PARENT_ID => 3, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'men/tops-men', MemberNames::PATH => $path3),
-             $path4 = 'Default Category/Men/Tops/Hoodies & Sweatshirts' => array(MemberNames::ENTITY_ID => 5, MemberNames::PARENT_ID => 4, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'men/tops-men/hoodies-and-sweatshirts-men', MemberNames::PATH => $path4),
-             $path5 = 'Default Category/Collections'                    => array(MemberNames::ENTITY_ID => 6, MemberNames::PARENT_ID => 3, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'collections', MemberNames::PATH => $path5),
-             $path6 = 'Default Category/Collections/Eco Friendly'       => array(MemberNames::ENTITY_ID => 7, MemberNames::PARENT_ID => 6, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'collections/eco-friendly', MemberNames::PATH => $path6),
+            $path1 = 'Default Category'                                => array(MemberNames::LEVEL => 1, MemberNames::ENTITY_ID => 2, MemberNames::PARENT_ID => 1, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => null, MemberNames::PATH => $path1),
+            $path2 = 'Default Category/Men'                            => array(MemberNames::LEVEL => 2, MemberNames::ENTITY_ID => 3, MemberNames::PARENT_ID => 2, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'men', MemberNames::PATH => $path2),
+            $path3 = 'Default Category/Men/Tops'                       => array(MemberNames::LEVEL => 3, MemberNames::ENTITY_ID => 4, MemberNames::PARENT_ID => 3, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'men/tops-men', MemberNames::PATH => $path3),
+            $path4 = 'Default Category/Men/Tops/Hoodies & Sweatshirts' => array(MemberNames::LEVEL => 4, MemberNames::ENTITY_ID => 5, MemberNames::PARENT_ID => 4, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'men/tops-men/hoodies-and-sweatshirts-men', MemberNames::PATH => $path4),
+            $path5 = 'Default Category/Collections'                    => array(MemberNames::LEVEL => 2, MemberNames::ENTITY_ID => 6, MemberNames::PARENT_ID => 3, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'collections', MemberNames::PATH => $path5),
+            $path6 = 'Default Category/Collections/Eco Friendly'       => array(MemberNames::LEVEL => 3, MemberNames::ENTITY_ID => 7, MemberNames::PARENT_ID => 6, MemberNames::IS_ANCHOR => null, MemberNames::URL_PATH => 'collections/eco-friendly', MemberNames::PATH => $path6),
         );
 
         // initialize a mock import adapter instance
@@ -446,38 +446,16 @@ class UrlRewriteObserverTest extends TestCase
                         $categories[$path6],
                         $categories[$path1]
                     );
-        $mockSubject->expects($this->exactly(13))
+        $mockSubject->expects($this->any())
                     ->method('getCategory')
-                    ->withConsecutive(
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path3][MemberNames::ENTITY_ID]),
-                        array($categories[$path2][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID]),
-                        array($categories[$path5][MemberNames::ENTITY_ID]),
-                        array($categories[$path2][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID]),
-                        array($categories[$path1][MemberNames::ENTITY_ID]),
-                        array($categories[$path4][MemberNames::ENTITY_ID]),
-                        array($categories[$path6][MemberNames::ENTITY_ID])
-                    )
-                    ->willReturnOnConsecutiveCalls(
-                        $categories[$path4],
-                        $categories[$path3],
-                        $categories[$path2],
-                        $categories[$path6],
-                        $categories[$path5],
-                        $categories[$path2],
-                        $categories[$path1],
-                        $categories[$path1],
-                        $categories[$path4],
-                        $categories[$path6],
-                        $categories[$path1],
-                        $categories[$path4],
-                        $categories[$path6]
-                    );
+                    ->will(
+                        $this->returnCallback(function ($categoryId, $storeViewCode) use ($categories) {
+                            foreach ($categories as $category) {
+                                if ((int) $category[MemberNames::ENTITY_ID] === (int) $categoryId) {
+                                    return $category;
+                                }
+                            }
+                        }));
         $mockSubject->expects($this->any())
                     ->method('getRootCategory')
                     ->willReturn($categories[$path1]);
@@ -502,7 +480,7 @@ class UrlRewriteObserverTest extends TestCase
                             return $arg2;
                         })
                     );
-       $mockSubject->expects(($this->exactly(4)))
+       $mockSubject->expects(($this->any()))
                     ->method('getImportAdapter')
                     ->willReturn($mockImportAdapter);
 

@@ -1,3 +1,13 @@
+# Version 24.1.3
+
+## Bugfixes
+
+* Fixed #PAC-338: Exception when category sorting changes
+
+## Features
+
+* None
+
 # Version 24.1.2
 
 ## Bugfixes

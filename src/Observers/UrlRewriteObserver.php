@@ -344,7 +344,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver
              return;
         }
 
-        // load the root category, because we need that to create the default product URL rewrite
+        // load the root category of the default store view (as we're in the
+        // default row and does not have a store view code), because we need
+        // that to create the default product URL rewrite
         $rootCategory = $this->getRootCategory();
 
         // at least, add the root category ID to the category => product relations
@@ -353,8 +355,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver
         // load the store view code from the appropriate column
         $storeViewCode = $this->getValue(ColumnKeys::STORE_VIEW_CODE);
 
+        // load the category paths from the import file
+        $paths = $this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode'));
+
         // append the category => product relations found
-        foreach ($this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode')) as $path) {
+        foreach ($paths as $path) {
             try {
                 // downgrade the path
                 $path = implode('/', $this->explode($path, '/'));
@@ -374,13 +379,10 @@ class UrlRewriteObserver extends AbstractProductImportObserver
             }
         }
 
-        // prepare the URL rewrites
-        foreach ($this->productCategoryIds as $categoryId) {
-            // set the category ID
-            $this->categoryId = $categoryId;
-
-            // prepare the attributes for each URL rewrite
-            $this->urlRewrites[$categoryId] = $this->prepareAttributes($storeViewCode);
+        // initialize the member varialbe with the category ID
+        // and prepare the attributes for each URL rewrite
+        foreach ($this->productCategoryIds as $this->categoryId) {
+            $this->urlRewrites[$this->categoryId] = $this->prepareAttributes($storeViewCode);
         }
     }
 
@@ -398,24 +400,19 @@ class UrlRewriteObserver extends AbstractProductImportObserver
     protected function resolveCategoryIds($categoryId, $topLevel = false, $storeViewCode = StoreViewCodes::ADMIN)
     {
 
-        // return immediately if this is the absolute root node
-        if ((integer) $categoryId === 1) {
-            return;
-        }
-
         // load the data of the category with the passed ID
         $category = $this->getCategory($categoryId, $storeViewCode);
+
+        // return immediately if this is a root category
+        if ($this->isRootCategory($category)) {
+            return;
+        }
 
         // create the product category relation for the current category
         $this->createProductCategoryRelation($category, $topLevel);
 
-        // load the root category
-        $rootCategory = $this->getRootCategory();
-
         // try to resolve the parent category IDs
-        if ($rootCategory[MemberNames::ENTITY_ID] !== ($parentId = $category[MemberNames::PARENT_ID])) {
-            $this->resolveCategoryIds($parentId, false);
-        }
+        $this->resolveCategoryIds($category[MemberNames::PARENT_ID], false, $storeViewCode);
     }
 
     /**
@@ -426,7 +423,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      *
      * @return void
      */
-    private function createProductCategoryRelation($category, $topLevel)
+    protected function createProductCategoryRelation($category, $topLevel)
     {
 
         // query whether or not the product has already been related
@@ -465,7 +462,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      *
      * @return bool
      */
-    private function getGenerateCategoryProductRewritesOptionValue()
+    protected function getGenerateCategoryProductRewritesOptionValue()
     {
         return (bool) $this->getSubject()->getCoreConfigData(
             CoreConfigDataKeys::CATALOG_SEO_GENERATE_CATEGORY_PRODUCT_REWRITES,
@@ -654,12 +651,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      */
     protected function isRootCategory(array $category)
     {
-
-        // load the root category
-        $rootCategory = $this->getRootCategory();
-
-        // compare the entity IDs and return the result
-        return $rootCategory[MemberNames::ENTITY_ID] === $category[MemberNames::ENTITY_ID];
+        return (int) $category[MemberNames::LEVEL] < 2;
     }
 
     /**

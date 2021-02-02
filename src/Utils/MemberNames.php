@@ -31,4 +31,11 @@ namespace TechDivision\Import\Product\UrlRewrite\Utils;
  */
 class MemberNames extends \TechDivision\Import\Product\Utils\MemberNames
 {
+
+    /**
+     * Name for the member 'attribute_code'.
+     *
+     * @var string
+     */
+    const LEVEL = 'level';
 }
