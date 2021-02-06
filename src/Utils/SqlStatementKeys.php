@@ -58,19 +58,19 @@ class SqlStatementKeys extends \TechDivision\Import\Product\Utils\SqlStatementKe
      *
      * @var string
      */
-    const URL_REWRITE_PRODUCT_CATEGORY = 'ur_rewrite_product_category';
+    const URL_REWRITE_PRODUCT_CATEGORY = 'url_rewrite_product_category';
 
     /**
      * The SQL statement to load the URL rewrites by a SKU.
      *
      * @var string
      */
-    const URL_REWRITES_BY_SKU = 'ur_rewrites.by.sku';
+    const URL_REWRITES_BY_SKU = 'url_rewrites.by.sku';
 
     /**
      * The SQL statement to load the URL rewrite product category relations for the passed SKU.
      *
      * @var string
      */
-    const URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU = 'ur_rewrite_product_categories.by.sku';
+    const URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU = 'url_rewrite_product_categories.by.sku';
 }
