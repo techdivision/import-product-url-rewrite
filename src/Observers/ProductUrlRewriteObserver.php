@@ -76,7 +76,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     public function __construct(
         ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor,
         StateDetectorInterface $stateDetector = null
-    ){
+    ) {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
         parent::__construct($stateDetector);
     }
@@ -114,7 +114,6 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
 
         // query whether or not we've a store view code
         if ($storeViewCodeValue === StoreViewCodes::ADMIN) {
-
             // load product to see if already exist or new
             $product = $this->loadProduct($this->getValue(ColumnKeys::SKU));
 
@@ -212,6 +211,8 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     /**
      * @param string $sku           The sku for the new url_key
      * @param string $storeViewCode The Storeview code
+     *
+     * @return void
      */
     protected function createArtefact($sku, $storeViewCode)
     {
