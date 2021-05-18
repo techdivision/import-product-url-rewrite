@@ -1,3 +1,13 @@
+# Version 24.1.4
+
+## Bugfixes
+
+* Fixed #PAC-235: Rewrites for the store views are updated unintentionally
+
+## Features
+
+* None
+
 # Version 24.1.3
 
 ## Bugfixes

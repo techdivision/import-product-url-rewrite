@@ -26,6 +26,7 @@ use TechDivision\Import\Product\Repositories\ProductRepositoryInterface;
 use TechDivision\Import\Product\Repositories\ProductVarcharRepositoryInterface;
 use TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepositoryInterface;
 use TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepositoryInterface;
+use TechDivision\Import\Utils\PrimaryKeyUtilInterface;
 
 /**
  * The product URL rewrite processor implementation.
@@ -45,6 +46,13 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @var \TechDivision\Import\Connection\ConnectionInterface
      */
     protected $connection;
+
+    /**
+     * The primary key util instance.
+     *
+     * @var \TechDivision\Import\Utils\PrimaryKeyUtilInterface
+     */
+    protected $primaryKeyUtil;
 
     /**
      * The action for URL rewrite CRUD methods.
@@ -91,6 +99,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @param \TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepositoryInterface $urlRewriteProductCategoryRepository The URL rewrite product category repository to use
      * @param \TechDivision\Import\Actions\ActionInterface                                                      $urlRewriteAction                    The URL rewrite action to use
      * @param \TechDivision\Import\Actions\ActionInterface                                                      $urlRewriteProductCategoryAction     The URL rewrite product category action to use
+     * @param \TechDivision\Import\Utils\PrimaryKeyUtilInterface                                                $primaryKeyUtil                      The primary key util
      */
     public function __construct(
         ConnectionInterface $connection,
@@ -99,9 +108,11 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
         UrlRewriteRepositoryInterface $urlRewriteRepository,
         UrlRewriteProductCategoryRepositoryInterface $urlRewriteProductCategoryRepository,
         ActionInterface $urlRewriteAction,
-        ActionInterface $urlRewriteProductCategoryAction
+        ActionInterface $urlRewriteProductCategoryAction,
+        PrimaryKeyUtilInterface $primaryKeyUtil
     ) {
         $this->setConnection($connection);
+        $this->setPrimaryKeyUtil($primaryKeyUtil);
         $this->setProductRepository($productRepository);
         $this->setProductVarcharRepository($productVarcharRepository);
         $this->setUrlRewriteRepository($urlRewriteRepository);
@@ -377,6 +388,21 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @param integer $attributeCode The attribute code of the varchar attribute
      * @param integer $entityTypeId  The entity type ID of the varchar attribute
      * @param integer $storeId       The store ID of the varchar attribute
+     * @param string  $pk            The primary key of the product
+     *
+     * @return array|null The varchar attribute
+     */
+    public function loadProductVarcharAttributeByAttributeCodeAndEntityTypeIdAndStoreIdAndPK($attributeCode, $entityTypeId, $storeId, $pk)
+    {
+        return $this->getProductVarcharRepository()->findOneByAttributeCodeAndEntityTypeIdAndStoreIdAndPk($attributeCode, $entityTypeId, $storeId, $pk);
+    }
+
+    /**
+     * Load's and return's the varchar attribute with the passed params.
+     *
+     * @param integer $attributeCode The attribute code of the varchar attribute
+     * @param integer $entityTypeId  The entity type ID of the varchar attribute
+     * @param integer $storeId       The store ID of the varchar attribute
      * @param string  $value         The value of the varchar attribute
      *
      * @return array|null The varchar attribute
@@ -436,5 +462,38 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     public function deleteUrlRewrite($row, $name = null)
     {
         $this->getUrlRewriteAction()->delete($row, $name);
+    }
+
+    /**
+     * Sets the passed primary key util instance.
+     *
+     * @param \TechDivision\Import\Utils\PrimaryKeyUtilInterface $primaryKeyUtil The primary key util instance
+     *
+     * @return void
+     */
+    public function setPrimaryKeyUtil(PrimaryKeyUtilInterface $primaryKeyUtil)
+    {
+        $this->primaryKeyUtil = $primaryKeyUtil;
+    }
+
+    /**
+     * Returns the primary key util instance.
+     *
+     * @return \TechDivision\Import\Utils\PrimaryKeyUtilInterface The primary key util instance
+     */
+    public function getPrimaryKeyUtil()
+    {
+        return $this->primaryKeyUtil;
+    }
+
+    /**
+     * Returns the primary key member name for the actual Magento edition.
+     *
+     * @return string The primary key member name
+     * @see \TechDivision\Import\Utils\PrimaryKeyUtilInterface::getPrimaryKeyMemberName()
+     */
+    public function getPrimaryKeyMemberName()
+    {
+        return $this->getPrimaryKeyUtil()->getPrimaryKeyMemberName();
     }
 }

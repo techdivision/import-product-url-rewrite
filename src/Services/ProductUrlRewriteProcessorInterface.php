@@ -130,6 +130,18 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
      * @param integer $attributeCode The attribute code of the varchar attribute
      * @param integer $entityTypeId  The entity type ID of the varchar attribute
      * @param integer $storeId       The store ID of the varchar attribute
+     * @param string  $pk            The primary key of the product
+     *
+     * @return array|null The varchar attribute
+     */
+    public function loadProductVarcharAttributeByAttributeCodeAndEntityTypeIdAndStoreIdAndPK($attributeCode, $entityTypeId, $storeId, $pk);
+
+    /**
+     * Load's and return's the varchar attribute with the passed params.
+     *
+     * @param integer $attributeCode The attribute code of the varchar attribute
+     * @param integer $entityTypeId  The entity type ID of the varchar attribute
+     * @param integer $storeId       The store ID of the varchar attribute
      * @param string  $value         The value of the varchar attribute
      *
      * @return array|null The varchar attribute
