@@ -213,5 +213,4 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
      * @see \TechDivision\Import\Utils\PrimaryKeyUtilInterface::getPrimaryKeyMemberName()
      */
     public function getPrimaryKeyMemberName();
-
 }
