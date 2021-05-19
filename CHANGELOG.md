@@ -2,7 +2,7 @@
 
 ## Bugfixes
 
-* Fixed #PAC-235: Rewrites for the store views are updated unintentionally
+* Fixed #PAC-325: Rewrites for the store views are updated unintentionally
 
 ## Features
 
