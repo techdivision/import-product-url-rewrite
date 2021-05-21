@@ -21,6 +21,7 @@
 namespace TechDivision\Import\Product\UrlRewrite\Services;
 
 use TechDivision\Import\Product\Services\ProductProcessorInterface;
+use TechDivision\Import\Utils\PrimaryKeyUtilInterface;
 
 /**
  * Interface for a product URL rewrite processor.
@@ -130,6 +131,18 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
      * @param integer $attributeCode The attribute code of the varchar attribute
      * @param integer $entityTypeId  The entity type ID of the varchar attribute
      * @param integer $storeId       The store ID of the varchar attribute
+     * @param string  $pk            The primary key of the product
+     *
+     * @return array|null The varchar attribute
+     */
+    public function loadProductVarcharAttributeByAttributeCodeAndEntityTypeIdAndStoreIdAndPK($attributeCode, $entityTypeId, $storeId, $pk);
+
+    /**
+     * Load's and return's the varchar attribute with the passed params.
+     *
+     * @param integer $attributeCode The attribute code of the varchar attribute
+     * @param integer $entityTypeId  The entity type ID of the varchar attribute
+     * @param integer $storeId       The store ID of the varchar attribute
      * @param string  $value         The value of the varchar attribute
      *
      * @return array|null The varchar attribute
@@ -175,4 +188,29 @@ interface ProductUrlRewriteProcessorInterface extends ProductProcessorInterface
      * @return void
      */
     public function deleteUrlRewrite($row, $name = null);
+
+
+    /**
+     * Sets the passed primary key util instance.
+     *
+     * @param \TechDivision\Import\Utils\PrimaryKeyUtilInterface $primaryKeyUtil The primary key util instance
+     *
+     * @return void
+     */
+    public function setPrimaryKeyUtil(PrimaryKeyUtilInterface $primaryKeyUtil);
+
+    /**
+     * Returns the primary key util instance.
+     *
+     * @return \TechDivision\Import\Utils\PrimaryKeyUtilInterface The primary key util instance
+     */
+    public function getPrimaryKeyUtil();
+
+    /**
+     * Returns the primary key member name for the actual Magento edition.
+     *
+     * @return string The primary key member name
+     * @see \TechDivision\Import\Utils\PrimaryKeyUtilInterface::getPrimaryKeyMemberName()
+     */
+    public function getPrimaryKeyMemberName();
 }
