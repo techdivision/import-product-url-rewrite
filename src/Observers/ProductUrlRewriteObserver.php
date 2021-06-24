@@ -155,7 +155,6 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
 
                     // override the existing data with the store view specific one
                     for ($i = 0; $i < sizeof($this->artefacts); $i++) {
-
                         // query whether or not a URL key has be specfied and the store view codes are equal
                         if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
                             // set the flag to mark we've already found an attribute
@@ -180,7 +179,6 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                         $this->createArtefact($sku, $storeViewCode);
                     }
                 }
-
             } else {
                 // on admin row and existing product check if url_key in database
                 if ($storeViewCodeValue === StoreViewCodes::ADMIN && $product) {
