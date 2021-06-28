@@ -1,3 +1,13 @@
+# Version 24.1.5 -- comming soon --
+
+## Bugfixes
+
+* Fixed: Duplicate error for url rewrites on replace shortcut
+
+## Features
+
+* None
+
 # Version 24.1.4
 
 ## Bugfixes

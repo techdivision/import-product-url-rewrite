@@ -149,10 +149,12 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                 // override the existing data with the store view specific one
                 for ($i = 0; $i < sizeof($this->artefacts); $i++) {
                     // query whether or not a URL key has be specfied and the store view codes are equal
-                    if ($this->hasValue(ColumnKeys::URL_KEY) && $this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
+                    if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
                         $foundArtefactToUpdate = true;
-                        // update the URL key
-                        $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
+                        // update the URL key, if available
+                        if ($this->hasValue(ColumnKeys::VISIBILITY)) {
+                            $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
+                        }
                         // update the visibility, if available
                         if ($this->hasValue(ColumnKeys::VISIBILITY)) {
                             $this->artefacts[$i][ColumnKeys::VISIBILITY] = $this->getValue(ColumnKeys::VISIBILITY);
@@ -163,8 +165,8 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                         $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getSubject()->getLineNumber();
                     }
                 }
+                // if no arefacts for specific storeviewcode available, append new data from admin Row
                 if (!$foundArtefactToUpdate) {
-                    // if no arefacts are available, append new data
                     $this->createArtefact($sku, $storeViewCode);
                 }
             } else {
