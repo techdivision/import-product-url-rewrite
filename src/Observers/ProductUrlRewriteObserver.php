@@ -148,36 +148,35 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
             if ($this->hasArtefactsByTypeAndEntityId(ProductUrlRewriteObserver::ARTEFACT_TYPE, $lastEntityId = $this->getSubject()->getLastEntityId())) {
                 // if yes, load the artefacs
                 $this->artefacts = $this->getArtefactsByTypeAndEntityId(ProductUrlRewriteObserver::ARTEFACT_TYPE, $lastEntityId);
-                // query whether or not an URL Key has been set
-                if ($this->hasValue(ColumnKeys::URL_KEY)) {
-                    // initialize the flag that shows whether or not an artefact has already been available
-                    $foundArtefactToUpdate = false;
 
-                    // override the existing data with the store view specific one
-                    for ($i = 0; $i < sizeof($this->artefacts); $i++) {
-                        // query whether or not a URL key has be specfied and the store view codes are equal
-                        if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
-                            // set the flag to mark we've already found an attribute
-                            $foundArtefactToUpdate = true;
+                // initialize the flag that shows whether or not an artefact has already been available
+                $foundArtefactToUpdate = false;
+                // override the existing data with the store view specific one
+                for ($i = 0; $i < sizeof($this->artefacts); $i++) {
+                    // query whether or not a URL key has be specfied and the store view codes are equal
+                    if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
+                        // set the flag to mark we've already found an attribute
+                        $foundArtefactToUpdate = true;
 
-                            // update the URL key
+                        // update the URL key, if available
+                        if ($this->hasValue(ColumnKeys::URL_KEY)) {
                             $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
-
-                            // update the visibility, if available
-                            if ($this->hasValue(ColumnKeys::VISIBILITY)) {
-                                $this->artefacts[$i][ColumnKeys::VISIBILITY] = $this->getValue(ColumnKeys::VISIBILITY);
-                            }
-
-                            // also update filename and line number
-                            $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_FILENAME] = $this->getSubject()->getFilename();
-                            $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getSubject()->getLineNumber();
                         }
-                    }
 
-                    if (!$foundArtefactToUpdate) {
-                        // if no arefacts are available, append new data
-                        $this->createArtefact($sku, $storeViewCode);
+                        // update the visibility, if available
+                        if ($this->hasValue(ColumnKeys::VISIBILITY)) {
+                            $this->artefacts[$i][ColumnKeys::VISIBILITY] = $this->getValue(ColumnKeys::VISIBILITY);
+                        }
+
+                        // also update filename and line number
+                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_FILENAME] = $this->getSubject()->getFilename();
+                        $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getSubject()->getLineNumber();
                     }
+                }
+
+                if (!$foundArtefactToUpdate) {
+                    // if no arefacts are available, append new data
+                    $this->createArtefact($sku, $storeViewCode);
                 }
             } else {
                 // on admin row and existing product check if url_key in database
