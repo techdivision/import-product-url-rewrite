@@ -1,4 +1,4 @@
-# Version 24.1.5 -- comming soon --
+# Version 24.1.5
 
 ## Bugfixes
 
