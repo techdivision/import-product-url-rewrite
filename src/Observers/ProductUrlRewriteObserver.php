@@ -152,7 +152,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                     if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
                         $foundArtefactToUpdate = true;
                         // update the URL key, if available
-                        if ($this->hasValue(ColumnKeys::VISIBILITY)) {
+                        if ($this->hasValue(ColumnKeys::URL_KEY)) {
                             $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
                         }
                         // update the visibility, if available
