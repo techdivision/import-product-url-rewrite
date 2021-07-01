@@ -181,7 +181,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
             if ($this->getSubject()->isDebugMode()) {
                 $this->getSubject()->getSystemLogger()->warning($message);
                 return $this->getRow();
-            } else {
+            } elseif ($this->getSubject()->isStrictMode()) {
                 throw new \Exception($this->appendExceptionSuffix($message));
             }
         }
@@ -196,7 +196,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
             if ($this->getSubject()->isDebugMode()) {
                 $this->getSubject()->getSystemLogger()->warning($message);
                 return $this->getRow();
-            } else {
+            } elseif ($this->getSubject()->isStrictMode()) {
                 throw new \Exception($this->appendExceptionSuffix($message));
             }
         }
@@ -313,7 +313,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                         $this->getSubject()
                              ->getSystemLogger()
                              ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
-                    } else {
+                    } elseif ($this->getSubject()->isStrictMode()) {
                         throw $e;
                     }
                 }
@@ -402,7 +402,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                     $this->getSubject()
                          ->getSystemLogger()
                          ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
-                } else {
+                } elseif ($this->getSubject()->isStrictMode()) {
                     throw $e;
                 }
             }
