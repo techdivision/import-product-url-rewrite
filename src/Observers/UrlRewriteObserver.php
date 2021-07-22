@@ -20,6 +20,7 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
+use TechDivision\Import\Observers\StateDetectorInterface;
 use TechDivision\Import\Product\UrlRewrite\Utils\CoreConfigDataKeys;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
@@ -108,10 +109,16 @@ class UrlRewriteObserver extends AbstractProductImportObserver
      * Initialize the observer with the passed product URL rewrite processor instance.
      *
      * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
+     * @param \TechDivision\Import\Observers\StateDetectorInterface                                $stateDetector              The state detector instance
      */
-    public function __construct(ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor)
-    {
+    public function __construct(
+        ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor,
+        StateDetectorInterface $stateDetector = null
+    ) {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
+
+        // pass the state detector to the parent method
+        parent::__construct($stateDetector);
     }
 
     /**
@@ -259,7 +266,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver
 
                 try {
                     // persist the URL rewrite
-                    $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
+                    if ($this->hasChanges($urlRewrite)) {
+                        $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
+                    } else {
+                        $this->urlRewriteId = $urlRewrite[MemberNames::URL_REWRITE_ID];
+                    }
 
                     /*
                      * Attention! Stop processing, if this is a root category, because Magento needs explicitly
@@ -275,7 +286,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver
                     );
 
                     // persist the URL rewrite product category relation
-                    $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+                    if ($this->hasChanges($urlRewriteProductCategory)) {
+                        $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+                    }
                 } catch (\Exception $e) {
                     // query whether or not debug mode has been enabled
                     if ($this->getSubject()->isDebugMode()) {

@@ -20,9 +20,11 @@
 
 namespace TechDivision\Import\Product\UrlRewrite\Repositories;
 
-use TechDivision\Import\Repositories\AbstractRepository;
+use TechDivision\Import\Product\UrlRewrite\Utils\CacheKeys;
+use TechDivision\Import\Repositories\AbstractFinderRepository;
 use TechDivision\Import\Product\UrlRewrite\Utils\MemberNames;
 use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
+use TechDivision\Import\Repositories\FinderAwareEntityRepositoryInterface;
 
 /**
  * Repository implementation to load URL rewrite product category relation data.
@@ -33,23 +35,9 @@ use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
-class UrlRewriteProductCategoryRepository extends AbstractRepository implements UrlRewriteProductCategoryRepositoryInterface
+class UrlRewriteProductCategoryRepository extends AbstractFinderRepository implements UrlRewriteProductCategoryRepositoryInterface, FinderAwareEntityRepositoryInterface
 {
-
-    /**
-     * The prepared statement to load an existing URL rewrite product category relation.
-     *
-     * @var \PDOStatement
-     */
-    protected $urlRewriteProductCategoryStmt;
-
-    /**
-     * The prepared statement to load the URL rewrite product category relations for the passed SKU.
-     *
-     * @var \PDOStatement
-     */
-    protected $urlRewriteProductCategoriesBySkuStmt;
-
+    
     /**
      * Initializes the repository's prepared statements.
      *
@@ -57,12 +45,10 @@ class UrlRewriteProductCategoryRepository extends AbstractRepository implements 
      */
     public function init()
     {
-
         // initialize the prepared statements
-        $this->urlRewriteProductCategoryStmt =
-            $this->getConnection()->prepare($this->loadStatement(SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORY));
-        $this->urlRewriteProductCategoriesBySkuStmt =
-            $this->getConnection()->prepare($this->loadStatement(SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU));
+        $this->addFinder($this->finderFactory->createFinder($this, SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORY));
+        $this->addFinder($this->finderFactory->createFinder($this, SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU));
+        $this->addFinder($this->finderFactory->createFinder($this, SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES));
     }
 
     /**
@@ -75,13 +61,8 @@ class UrlRewriteProductCategoryRepository extends AbstractRepository implements 
      */
     public function load($urlRewriteId)
     {
-
-        // initialize the parameters
-        $params = array(MemberNames::URL_REWRITE_ID => $urlRewriteId);
-
-        // load and return the URL rewrite product category relation
-        $this->urlRewriteProductCategoryStmt->execute($params);
-        return $this->urlRewriteProductCategoryStmt->fetch(\PDO::FETCH_ASSOC);
+        return $this->getFinder(SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORY)
+            ->find(array(MemberNames::URL_REWRITE_ID => $urlRewriteId));
     }
 
     /**
@@ -90,15 +71,53 @@ class UrlRewriteProductCategoryRepository extends AbstractRepository implements 
      * @param string $sku The SKU to load the URL rewrite product category relations for
      *
      * @return array The URL rewrite product category relations
+     * @deprecated since 24.0.0
      */
     public function findAllBySku($sku)
     {
+        foreach ($this->getFinder(SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU)->find(array(MemberNames::SKU => $sku)) as $result) {
+            yield $result;
+        }
+    }
 
-        // initialize the params
-        $params = array(MemberNames::SKU => $sku);
 
-        // load and return the URL rewrite product category relations for the passed SKU
-        $this->urlRewriteProductCategoriesBySkuStmt->execute($params);
-        return $this->urlRewriteProductCategoriesBySkuStmt->fetchAll(\PDO::FETCH_ASSOC);
+    /**
+     * @return array|null The country region data
+     */
+    public function findAll()
+    {
+        foreach ($this->getFinder(SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES)->find() as $result) {
+            yield $result;
+        }
+    }
+
+    /**
+     * Return's the primary key name of the entity.
+     *
+     * @return string The name of the entity's primary key
+     */
+    public function getPrimaryKeyName()
+    {
+        return MemberNames::URL_REWRITE_ID;
+    }
+
+    /**
+     * Return's the finder's entity name.
+     *
+     * @return string The finder's entity name
+     */
+    public function getEntityName()
+    {
+        return CacheKeys::URL_REWRITE_PRODUCT_CATEGORY;
+    }
+
+    /**
+     * Return's the entity unique key name.
+     *
+     * @return string The name of the entity's unique key
+     */
+    public function getUniqueKeyName()
+    {
+        return $this->getPrimaryKeyName();
     }
 }

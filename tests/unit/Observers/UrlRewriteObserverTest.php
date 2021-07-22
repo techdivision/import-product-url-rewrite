@@ -207,6 +207,11 @@ class UrlRewriteObserverTest extends TestCase
         $categoryId = 2;
         $entityId = 61413;
 
+        // mock the system logger
+        $mockSystemLogger = $this->getMockBuilder('Psr\Log\LoggerInterface')
+            ->setMethods(get_class_methods('Psr\Log\LoggerInterface'))
+            ->getMock();
+
         // create a mock subject
         $mockSubject = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Subjects\UrlRewriteSubject')
                             ->setMethods(
@@ -224,13 +229,17 @@ class UrlRewriteObserverTest extends TestCase
                                     'getEntityIdVisibilityIdMapping',
                                     'getStoreViewCode',
                                     'isDebugMode',
-                                    'storeIsActive'
+                                    'storeIsActive',
+                                    'getSystemLogger',
                                 )
                             )
                             ->disableOriginalConstructor()
                             ->getMock();
 
         // mock the methods
+        $mockSubject->expects($this->any())
+            ->method('getSystemLogger')
+            ->willReturn($mockSystemLogger);
         $mockSubject->expects($this->any())
                     ->method('isDebugMode')
                     ->willReturn(false);
