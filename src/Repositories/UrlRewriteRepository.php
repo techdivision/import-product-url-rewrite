@@ -53,8 +53,7 @@ class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteR
         // invoke the parent instance
         parent::init();
 
-        // initialize the prepared statements
-        $this->urlRewritesBySkuStmt = $this->getConnection()->prepare($this->loadStatement(SqlStatementKeys::URL_REWRITES_BY_SKU));
+        $this->addFinder($this->finderFactory->createFinder($this, SqlStatementKeys::URL_REWRITES_BY_SKU));
     }
 
     /**
@@ -63,6 +62,7 @@ class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteR
      * @param string $sku The SKU to load the URL rewrites for
      *
      * @return array The URL rewrites
+     * @deprecated since 24.0.0
      */
     public function findAllBySku($sku)
     {
@@ -70,8 +70,8 @@ class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteR
         // initialize the params
         $params = array(MemberNames::SKU => $sku);
 
-        // load and return the URL rewrites for the passed SKU
-        $this->urlRewritesBySkuStmt->execute($params);
-        return $this->urlRewritesBySkuStmt->fetchAll(\PDO::FETCH_ASSOC);
+        foreach ($this->getFinder(SqlStatementKeys::URL_REWRITES_BY_SKU)->find($params) as $result) {
+            yield $result;
+        }
     }
 }

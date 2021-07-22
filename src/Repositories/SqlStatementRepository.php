@@ -77,7 +77,10 @@ class SqlStatementRepository extends \TechDivision\Import\Product\Repositories\S
               WHERE t1.sku = :sku
                 AND t2.entity_id = t1.entity_id
                 AND t2.entity_type = \'product\'
-                AND t3.url_rewrite_id = t2.url_rewrite_id'
+                AND t3.url_rewrite_id = t2.url_rewrite_id',
+        SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES =>
+            'SELECT *
+               FROM ${table:catalog_url_rewrite_product_category}',
     );
 
     /**

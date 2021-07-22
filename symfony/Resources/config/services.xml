@@ -11,10 +11,12 @@
         <service id="import_product_url_rewrite.repository.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteRepository">
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
+            <argument type="service" id="import.repository.finder.factory.configurable"/>
         </service>
         <service id="import_product_url_rewrite.repository.url.rewrite.product.category" class="TechDivision\Import\Product\UrlRewrite\Repositories\UrlRewriteProductCategoryRepository">
             <argument type="service" id="connection"/>
             <argument type="service" id="import_product_url_rewrite.repository.sql.statement"/>
+            <argument type="service" id="import.repository.finder.factory.configurable"/>
         </service>
 
         <service id="import_product_url_rewrite.action.processor.url.rewrite.product.category.create" class="TechDivision\Import\Product\UrlRewrite\Actions\Processors\UrlRewriteProductCategoryCreateProcessor">
