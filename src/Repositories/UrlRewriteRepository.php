@@ -31,6 +31,7 @@ use TechDivision\Import\Product\UrlRewrite\Utils\SqlStatementKeys;
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
+ * @deprecated findAllBySku never used
  */
 class UrlRewriteRepository extends \TechDivision\Import\Repositories\UrlRewriteRepository implements UrlRewriteRepositoryInterface
 {

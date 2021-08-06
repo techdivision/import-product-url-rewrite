@@ -352,6 +352,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @param string $sku The SKU to load the URL rewrites for
      *
      * @return array The URL rewrites
+     * @deprecated since 24.0.0
      */
     public function getUrlRewritesBySku($sku)
     {
@@ -364,6 +365,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @param string $sku The SKU to load the URL rewrite product category relations for
      *
      * @return array The URL rewrite product category relations
+     * @deprecated since 24.0.0
      */
     public function getUrlRewriteProductCategoriesBySku($sku)
     {

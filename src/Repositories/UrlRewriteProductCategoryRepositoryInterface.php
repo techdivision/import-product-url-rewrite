@@ -50,6 +50,12 @@ interface UrlRewriteProductCategoryRepositoryInterface extends RepositoryInterfa
      * @param string $sku The SKU to load the URL rewrite product category relations for
      *
      * @return array The URL rewrite product category relations
+     * @deprecated since 24.0.0
      */
     public function findAllBySku($sku);
+
+    /**
+     * @return array|null The product categorie relation data
+     */
+    public function findAll();
 }

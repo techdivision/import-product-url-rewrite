@@ -7,6 +7,7 @@
 ## Features
 
 * Add #PAC-273: Update product 301 URL redirects to forward to active URL rewrite
+* Prepare optimze performance cache
 
 # 24.1.0
 

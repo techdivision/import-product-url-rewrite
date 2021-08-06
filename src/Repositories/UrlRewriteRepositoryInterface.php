@@ -28,6 +28,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Repositories;
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
+ *  @deprecated since 24.0.0
  */
 interface UrlRewriteRepositoryInterface extends \TechDivision\Import\Repositories\UrlRewriteRepositoryInterface
 {
@@ -38,6 +39,7 @@ interface UrlRewriteRepositoryInterface extends \TechDivision\Import\Repositorie
      * @param string $sku The SKU to load the URL rewrites for
      *
      * @return array The URL rewrites
+     *  @deprecated since 24.0.0
      */
     public function findAllBySku($sku);
 }
