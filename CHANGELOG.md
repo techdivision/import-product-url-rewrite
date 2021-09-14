@@ -1,8 +1,9 @@
-# 25.0.0
+# 25.0.0 -- comming soon --
 
 ## Bugfixes
 
 * Fixed #PAC-325: Rewrites for the store views are updated unintentionally
+* Fixed #PAC-492: Case sensitiv url request path
 
 ## Features
 

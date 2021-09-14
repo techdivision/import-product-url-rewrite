@@ -230,7 +230,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
         foreach ($this->existingUrlRewrites as $urlRewrite) {
             // compare the category IDs AND the request path
             if ($categoryId === $this->getCategoryIdFromMetadata($urlRewrite) &&
-                $attr[MemberNames::REQUEST_PATH] === $urlRewrite[MemberNames::REQUEST_PATH]
+                strtolower($attr[MemberNames::REQUEST_PATH]) === strtolower($urlRewrite[MemberNames::REQUEST_PATH])
             ) {
                 // if a URL rewrite has been found, do NOT create OR keep an existing redirect
                 $this->removeExistingUrlRewrite($urlRewrite);
