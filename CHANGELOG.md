@@ -1,3 +1,9 @@
+# Version 24.1.7
+
+## Bugfixes
+
+* Fixed #PAC-492: Case sensitiv url request path
+
 # Version 24.1.6
 
 ## Improvement
