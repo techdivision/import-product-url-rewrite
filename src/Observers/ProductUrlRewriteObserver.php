@@ -219,16 +219,16 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     protected function createArtefact($sku, $storeViewCode)
     {
         if (isset($this->adminRow[$sku])) {
-            if (!$this->hasValue(ColumnKeys::CATEGORIES)) {
+            if (!$this->hasValue(ColumnKeys::CATEGORIES) && isset($this->adminRow[$sku][ColumnKeys::CATEGORIES])) {
                 $this->setValue(ColumnKeys::CATEGORIES, $this->adminRow[$sku][ColumnKeys::CATEGORIES]);
             }
-            if (!$this->hasValue(ColumnKeys::PRODUCT_WEBSITES)) {
+            if (!$this->hasValue(ColumnKeys::PRODUCT_WEBSITES) && isset($this->adminRow[$sku][ColumnKeys::PRODUCT_WEBSITES])) {
                 $this->setValue(ColumnKeys::PRODUCT_WEBSITES, $this->adminRow[$sku][ColumnKeys::PRODUCT_WEBSITES]);
             }
-            if (!$this->hasValue(ColumnKeys::VISIBILITY)) {
+            if (!$this->hasValue(ColumnKeys::VISIBILITY) && isset($this->adminRow[$sku][ColumnKeys::VISIBILITY])) {
                 $this->setValue(ColumnKeys::VISIBILITY, $this->adminRow[$sku][ColumnKeys::VISIBILITY]);
             }
-            if (!$this->hasValue(ColumnKeys::URL_KEY)) {
+            if (!$this->hasValue(ColumnKeys::URL_KEY) && isset($this->adminRow[$sku][ColumnKeys::URL_KEY])) {
                 $this->setValue(ColumnKeys::URL_KEY, $this->adminRow[$sku][ColumnKeys::URL_KEY]);
             }
         }

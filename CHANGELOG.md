@@ -1,3 +1,10 @@
+# Version 24.1.8
+
+## Bugfixes
+
+* Fixed #33
+ * Header categories is not available in file
+
 # Version 24.1.7
 
 ## Bugfixes
