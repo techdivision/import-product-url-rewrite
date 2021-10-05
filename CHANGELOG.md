@@ -2,8 +2,7 @@
 
 ## Bugfixes
 
-* Fixed #33
- * Header categories is not available in file
+* Fixed #33: Header categories is not available in file
 
 # Version 24.1.7
 
