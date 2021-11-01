@@ -16,7 +16,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use TechDivision\Import\Utils\EntityStatus;
+use TechDivision\Import\Dbal\Utils\EntityStatus;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;

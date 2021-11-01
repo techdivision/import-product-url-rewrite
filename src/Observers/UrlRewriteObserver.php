@@ -149,7 +149,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
     /**
      * Return's the product bunch processor instance.
      *
-     * @return \TechDivision\Import\Product\Services\ProductBunchProcessorInterface The product bunch processor instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface The product bunch processor instance
      */
     protected function getProductUrlRewriteProcessor()
     {

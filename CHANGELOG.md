@@ -1,4 +1,4 @@
-# 25.0.0 -- comming soon --
+# 25.0.0
 
 ## Bugfixes
 
@@ -7,6 +7,7 @@
 
 ## Features
 
+* Refactoring deprecated classes. see https://github.com/techdivision/import-cli-simple/blob/master/UPGRADE-4.0.0.md
 * Add #PAC-273: Update product 301 URL redirects to forward to active URL rewrite
 * Prepare optimze performance cache
 
