@@ -1,7 +1,10 @@
 {
   "finder-mappings": {
     "product_url_rewrite": {
-      "TechDivision\\Import\\Product\\UrlRewrite\\Utils\\SqlStatementKeys::URL_REWRITES_BY_SKU": "import.repository.finder.factory.yielded"
+      "TechDivision\\Import\\Product\\UrlRewrite\\Utils\\SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES": "import.repository.finder.factory.yielded",
+      "TechDivision\\Import\\Product\\UrlRewrite\\Utils\\SqlStatementKeys::URL_REWRITES_BY_SKU": "import.repository.finder.factory.yielded",
+      "TechDivision\\Import\\Product\\UrlRewrite\\Utils\\SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORY": "import.repository.finder.factory.unique",
+      "TechDivision\\Import\\Product\\UrlRewrite\\Utils\\SqlStatementKeys::URL_REWRITE_PRODUCT_CATEGORIES_BY_SKU": "import.repository.finder.factory.yielded"
     }
   }
 }

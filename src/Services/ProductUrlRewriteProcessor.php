@@ -3,17 +3,11 @@
 /**
  * TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessor
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * PHP version 5
+ * PHP version 7
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
@@ -33,7 +27,7 @@ use TechDivision\Import\Dbal\Utils\PrimaryKeyUtilInterface;
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
@@ -352,6 +346,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @param string $sku The SKU to load the URL rewrites for
      *
      * @return array The URL rewrites
+     * @deprecated since 24.0.0
      */
     public function getUrlRewritesBySku($sku)
     {
@@ -364,6 +359,7 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
      * @param string $sku The SKU to load the URL rewrite product category relations for
      *
      * @return array The URL rewrite product category relations
+     * @deprecated since 24.0.0
      */
     public function getUrlRewriteProductCategoriesBySku($sku)
     {
@@ -380,6 +376,21 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     public function loadProduct($sku)
     {
         return $this->getProductRepository()->findOneBySku($sku);
+    }
+
+    /**
+     * Load's and return's the varchar attribute with the passed params.
+     *
+     * @param integer $attributeCode The attribute code of the varchar attribute
+     * @param integer $entityTypeId  The entity type ID of the varchar attribute
+     * @param integer $storeId       The store ID of the varchar attribute
+     * @param string  $primaryKey    The primary key of the product
+     *
+     * @return array|null The varchar attribute
+     */
+    public function loadVarcharAttributeByAttributeCodeAndEntityTypeIdAndStoreIdAndPrimaryKey($attributeCode, $entityTypeId, $storeId, $primaryKey)
+    {
+        return $this->loadProductVarcharAttributeByAttributeCodeAndEntityTypeIdAndStoreIdAndPK($attributeCode, $entityTypeId, $storeId, $primaryKey);
     }
 
     /**

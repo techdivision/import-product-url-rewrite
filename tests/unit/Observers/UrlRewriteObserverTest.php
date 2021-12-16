@@ -3,17 +3,11 @@
 /**
  * TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserverTest
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * PHP version 5
+ * PHP version 7
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
@@ -22,7 +16,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use TechDivision\Import\Utils\EntityStatus;
+use TechDivision\Import\Dbal\Utils\EntityStatus;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
@@ -36,7 +30,7 @@ use TechDivision\Import\Product\UrlRewrite\Subjects\UrlRewriteSubject;
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
@@ -64,7 +58,7 @@ class UrlRewriteObserverTest extends TestCase
      * @return void
      * @see \PHPUnit\Framework\TestCase::setUp()
      */
-    protected function setUp()
+    protected function setUp(): void
     {
 
         // mock the subject instance used to initialize the
@@ -214,6 +208,11 @@ class UrlRewriteObserverTest extends TestCase
         $categoryId = 2;
         $entityId = 61413;
 
+        // mock the system logger
+        $mockSystemLogger = $this->getMockBuilder('Psr\Log\LoggerInterface')
+            ->setMethods(get_class_methods('Psr\Log\LoggerInterface'))
+            ->getMock();
+
         // create a mock subject
         $mockSubject = $this->getMockBuilder('TechDivision\Import\Product\UrlRewrite\Subjects\UrlRewriteSubject')
                             ->setMethods(
@@ -231,13 +230,17 @@ class UrlRewriteObserverTest extends TestCase
                                     'getEntityIdVisibilityIdMapping',
                                     'getStoreViewCode',
                                     'isDebugMode',
-                                    'storeIsActive'
+                                    'storeIsActive',
+                                    'getSystemLogger',
                                 )
                             )
                             ->disableOriginalConstructor()
                             ->getMock();
 
         // mock the methods
+        $mockSubject->expects($this->any())
+            ->method('getSystemLogger')
+            ->willReturn($mockSystemLogger);
         $mockSubject->expects($this->any())
                     ->method('isDebugMode')
                     ->willReturn(false);

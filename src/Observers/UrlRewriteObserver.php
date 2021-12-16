@@ -3,23 +3,18 @@
 /**
  * TechDivision\Import\Product\UrlRewrite\Observers\UrlRewriteObserver
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * PHP version 5
+ * PHP version 7
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
 
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
+use TechDivision\Import\Observers\StateDetectorInterface;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Subjects\SubjectInterface;
 use TechDivision\Import\Observers\ObserverFactoryInterface;
@@ -35,7 +30,7 @@ use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorIn
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
@@ -116,10 +111,16 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
      * Initialize the observer with the passed product URL rewrite processor instance.
      *
      * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
+     * @param \TechDivision\Import\Observers\StateDetectorInterface                                $stateDetector              The state detector instance
      */
-    public function __construct(ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor)
-    {
+    public function __construct(
+        ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor,
+        StateDetectorInterface $stateDetector = null
+    ) {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
+
+        // pass the state detector to the parent method
+        parent::__construct($stateDetector);
     }
 
     /**
@@ -148,7 +149,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
     /**
      * Return's the product bunch processor instance.
      *
-     * @return \TechDivision\Import\Product\Services\ProductBunchProcessorInterface The product bunch processor instance
+     * @return \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface The product bunch processor instance
      */
     protected function getProductUrlRewriteProcessor()
     {
@@ -290,7 +291,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
 
                 try {
                     // persist the URL rewrite
-                    $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
+                    if ($this->hasChanges($urlRewrite)) {
+                        $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
+                    } else {
+                        $this->urlRewriteId = $urlRewrite[MemberNames::URL_REWRITE_ID];
+                    }
 
                     /*
                      * Attention! Stop processing, if this is a root category, because Magento needs explicitly
@@ -306,7 +311,9 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                     );
 
                     // persist the URL rewrite product category relation
-                    $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+                    if ($this->hasChanges($urlRewriteProductCategory)) {
+                        $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+                    }
                 } catch (\Exception $e) {
                     // query whether or not debug mode has been enabled
                     if ($this->getSubject()->isDebugMode()) {
@@ -474,6 +481,8 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
             return;
         }
 
+        // log a debug messsage that the URL rewrite has not
+        // been created because of the missing anchor flag
         $this->getSubject()
             ->getSystemLogger()
             ->debug(

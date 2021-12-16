@@ -3,10 +3,13 @@
 ## Bugfixes
 
 * Fixed #PAC-325: Rewrites for the store views are updated unintentionally
+* Fixed #PAC-492: Case sensitiv url request path
 
 ## Features
 
+* Refactoring deprecated classes. see https://github.com/techdivision/import-cli-simple/blob/master/UPGRADE-4.0.0.md
 * Add #PAC-273: Update product 301 URL redirects to forward to active URL rewrite
+* Prepare optimze performance cache
 
 # 24.1.0
 

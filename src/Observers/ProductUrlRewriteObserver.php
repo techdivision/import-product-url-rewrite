@@ -3,17 +3,11 @@
 /**
  * TechDivision\Import\Product\UrlRewrite\Observers\ProductUrlRewriteObserver
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * PHP version 5
+ * PHP version 7
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
@@ -32,7 +26,7 @@ use TechDivision\Import\Product\Observers\AbstractProductImportObserver;
  *
  * @author    Tim Wagner <t.wagner@techdivision.com>
  * @copyright 2016 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   https://opensource.org/licenses/MIT
  * @link      https://github.com/techdivision/import-product-url-rewrite
  * @link      http://www.techdivision.com
  */
@@ -98,7 +92,10 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
      */
     protected function process()
     {
+
+        // initialize the product
         $product = null;
+
         // initialize the array for the artefacts and the store view codes
         $this->artefacts = array();
         $storeViewCodes = array();
@@ -117,14 +114,15 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
             // load product to see if already exist or new
             $product = $this->loadProduct($this->getValue(ColumnKeys::SKU));
 
-            // Init admin row for memory overload
+            // init admin row for memory overload
             $this->adminRow = array();
+
             // remember the admin row on SKU to be safe on later process
             $this->adminRow[$sku] = array(
-                ColumnKeys::CATEGORIES         => $this->getValue(ColumnKeys::CATEGORIES),
-                ColumnKeys::PRODUCT_WEBSITES   => $this->getValue(ColumnKeys::PRODUCT_WEBSITES),
-                ColumnKeys::VISIBILITY         => $this->getValue(ColumnKeys::VISIBILITY),
-                ColumnKeys::URL_KEY            => $this->getValue(ColumnKeys::URL_KEY)
+                ColumnKeys::CATEGORIES       => $this->getValue(ColumnKeys::CATEGORIES),
+                ColumnKeys::PRODUCT_WEBSITES => $this->getValue(ColumnKeys::PRODUCT_WEBSITES),
+                ColumnKeys::VISIBILITY       => $this->getValue(ColumnKeys::VISIBILITY),
+                ColumnKeys::URL_KEY          => $this->getValue(ColumnKeys::URL_KEY)
             );
 
             // if not, load the websites the product is related with
@@ -145,14 +143,20 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                 // if yes, load the artefacs
                 $this->artefacts = $this->getArtefactsByTypeAndEntityId(ProductUrlRewriteObserver::ARTEFACT_TYPE, $lastEntityId);
 
+                // initialize the flag that shows whether or not an artefact has already been available
                 $foundArtefactToUpdate = false;
                 // override the existing data with the store view specific one
                 for ($i = 0; $i < sizeof($this->artefacts); $i++) {
                     // query whether or not a URL key has be specfied and the store view codes are equal
-                    if ($this->hasValue(ColumnKeys::URL_KEY) && $this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
+                    if ($this->artefacts[$i][ColumnKeys::STORE_VIEW_CODE] === $storeViewCode) {
+                        // set the flag to mark we've already found an attribute
                         $foundArtefactToUpdate = true;
-                        // update the URL key
-                        $this->artefacts[$i][ColumnKeys::URL_KEY]    = $this->getValue(ColumnKeys::URL_KEY);
+
+                        // update the URL key, if available
+                        if ($this->hasValue(ColumnKeys::URL_KEY)) {
+                            $this->artefacts[$i][ColumnKeys::URL_KEY] = $this->getValue(ColumnKeys::URL_KEY);
+                        }
+
                         // update the visibility, if available
                         if ($this->hasValue(ColumnKeys::VISIBILITY)) {
                             $this->artefacts[$i][ColumnKeys::VISIBILITY] = $this->getValue(ColumnKeys::VISIBILITY);
@@ -163,33 +167,25 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
                         $this->artefacts[$i][ColumnKeys::ORIGINAL_DATA][ColumnKeys::ORIGINAL_LINE_NUMBER] = $this->getSubject()->getLineNumber();
                     }
                 }
+
                 if (!$foundArtefactToUpdate) {
                     // if no arefacts are available, append new data
                     $this->createArtefact($sku, $storeViewCode);
                 }
             } else {
-                // On admin row and existing product check if url_key in database
+                // on admin row and existing product check if url_key in database
                 if ($storeViewCodeValue === StoreViewCodes::ADMIN && $product) {
-                    // initialize last entity as primary key
-                    $pk = $this->getPrimaryKeyId($product);
-                    // initialize the entity type ID
-                    $entityType = $this->getSubject()->getEntityType();
-                    $entityTypeId = (integer) $entityType[MemberNames::ENTITY_TYPE_ID];
                     // initialize store ID from store code
                     $storeId = $this->getSubject()->getRowStoreId($storeViewCode);
-                    // take a look if url_key already exist
-                    $foundExistingUrlKey = $this->getProductUrlRewriteProcessor()->loadProductVarcharAttributeByAttributeCodeAndEntityTypeIdAndStoreIdAndPK(
-                        ColumnKeys::URL_KEY,
-                        $entityTypeId,
-                        $storeId,
-                        $pk
-                    );
+                    // load the url_key attribute
+                    $urlKey = $this->loadExistingUrlKey($product, $storeViewCode);
                     // if url_key attribute found and same store as searched
-                    if ($foundExistingUrlKey && $foundExistingUrlKey[MemberNames::STORE_ID] == $storeId) {
+                    if ($urlKey && $urlKey[MemberNames::STORE_ID] == $storeId) {
                         // skip for artefact as default entry
                         continue;
                     }
                 }
+
                 // if no arefacts are available, append new data
                 $this->createArtefact($sku, $storeViewCode);
             }
@@ -197,6 +193,36 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
 
         // append the artefacts that has to be exported to the subject
         $this->addArtefacts($this->artefacts);
+    }
+
+    /**
+     * Tries to load the URL key for the passed product and store view code and return's it.
+     *
+     * @param array  $product       The product to return the URL key for
+     * @param string $storeViewCode The store view code of the URL key
+     *
+     * @return array|null The array with the URL key attribute data
+     */
+    protected function loadExistingUrlKey(array $product, string $storeViewCode)
+    {
+
+        // initialize last entity as primary key
+        $pk = $this->getPrimaryKeyId($product);
+
+        // initialize the entity type ID
+        $entityType = $this->getSubject()->getEntityType();
+        $entityTypeId = (integer) $entityType[MemberNames::ENTITY_TYPE_ID];
+
+        // initialize store ID from store code
+        $storeId = $this->getSubject()->getRowStoreId($storeViewCode);
+
+        // take a look if url_key already exist
+        return $this->getProductUrlRewriteProcessor()->loadVarcharAttributeByAttributeCodeAndEntityTypeIdAndStoreIdAndPrimaryKey(
+            ColumnKeys::URL_KEY,
+            $entityTypeId,
+            $storeId,
+            $pk
+        );
     }
 
     /**
@@ -209,36 +235,25 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     }
 
     /**
+     * Creates a new artefact, pre-initialized with the values from the admin row.
+     *
      * @param string $sku           The sku for the new url_key
      * @param string $storeViewCode The Storeview code
      *
      * @return void
      */
-    protected function createArtefact($sku, $storeViewCode)
+    protected function createArtefact(string $sku, string $storeViewCode) : void
     {
-        if (isset($this->adminRow[$sku])) {
-            if (!$this->hasValue(ColumnKeys::CATEGORIES)) {
-                $this->setValue(ColumnKeys::CATEGORIES, $this->adminRow[$sku][ColumnKeys::CATEGORIES]);
-            }
-            if (!$this->hasValue(ColumnKeys::PRODUCT_WEBSITES)) {
-                $this->setValue(ColumnKeys::PRODUCT_WEBSITES, $this->adminRow[$sku][ColumnKeys::PRODUCT_WEBSITES]);
-            }
-            if (!$this->hasValue(ColumnKeys::VISIBILITY)) {
-                $this->setValue(ColumnKeys::VISIBILITY, $this->adminRow[$sku][ColumnKeys::VISIBILITY]);
-            }
-            if (!$this->hasValue(ColumnKeys::URL_KEY)) {
-                $this->setValue(ColumnKeys::URL_KEY, $this->adminRow[$sku][ColumnKeys::URL_KEY]);
-            }
-        }
 
+        // create the new artefact and return it
         $artefact = $this->newArtefact(
             array(
                 ColumnKeys::SKU                => $sku,
                 ColumnKeys::STORE_VIEW_CODE    => $storeViewCode,
-                ColumnKeys::CATEGORIES         => $this->getValue(ColumnKeys::CATEGORIES),
-                ColumnKeys::PRODUCT_WEBSITES   => $this->getValue(ColumnKeys::PRODUCT_WEBSITES),
-                ColumnKeys::VISIBILITY         => $this->getValue(ColumnKeys::VISIBILITY),
-                ColumnKeys::URL_KEY            => $this->getValue(ColumnKeys::URL_KEY)
+                ColumnKeys::CATEGORIES         => $this->getValue(ColumnKeys::CATEGORIES, isset($this->adminRow[$sku][ColumnKeys::CATEGORIES]) ? $this->adminRow[$sku][ColumnKeys::CATEGORIES]: null),
+                ColumnKeys::PRODUCT_WEBSITES   => $this->getValue(ColumnKeys::PRODUCT_WEBSITES, isset($this->adminRow[$sku][ColumnKeys::PRODUCT_WEBSITES]) ? $this->adminRow[$sku][ColumnKeys::PRODUCT_WEBSITES] : null),
+                ColumnKeys::VISIBILITY         => $this->getValue(ColumnKeys::VISIBILITY, isset($this->adminRow[$sku][ColumnKeys::VISIBILITY]) ? $this->adminRow[$sku][ColumnKeys::VISIBILITY] : null),
+                ColumnKeys::URL_KEY            => $this->getValue(ColumnKeys::URL_KEY, isset($this->adminRow[$sku][ColumnKeys::URL_KEY]) ? $this->adminRow[$sku][ColumnKeys::URL_KEY] : null)
             ),
             array(
                 ColumnKeys::SKU                => ColumnKeys::SKU,
