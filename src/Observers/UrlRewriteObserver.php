@@ -15,6 +15,7 @@
 namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use TechDivision\Import\Observers\StateDetectorInterface;
+use TechDivision\Import\Utils\RegistryKeys;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Subjects\SubjectInterface;
 use TechDivision\Import\Observers\ObserverFactoryInterface;
@@ -179,8 +180,19 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
             // prepare a log message
             $message = sprintf('Product with SKU "%s" can\'t be loaded to create URL rewrites', $sku);
             // query whether or not we're in debug mode
-            if ($this->getSubject()->isDebugMode()) {
+            if (!$this->getSubject()->isStrictMode()) {
                 $this->getSubject()->getSystemLogger()->warning($message);
+                $this->mergeStatus(
+                    array(
+                        RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                            basename($this->getFilename()) => array(
+                                $this->getLineNumber() => array(
+                                    ColumnKeys::SKU => $message
+                                )
+                            )
+                        )
+                    )
+                );
                 return $this->getRow();
             } else {
                 throw new \Exception($this->appendExceptionSuffix($message));
@@ -194,8 +206,19 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
             // prepare a log message
             $message = sprintf('Can\'t find a value in column "url_key" for product with SKU "%s"', $sku);
             // query whether or not we're in debug mode
-            if ($this->getSubject()->isDebugMode()) {
+            if (!$this->getSubject()->isStrictMode()) {
                 $this->getSubject()->getSystemLogger()->warning($message);
+                $this->mergeStatus(
+                    array(
+                        RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                            basename($this->getFilename()) => array(
+                                $this->getLineNumber() => array(
+                                    ColumnKeys::URL_KEY => $message
+                                )
+                            )
+                        )
+                    )
+                );
                 return $this->getRow();
             } else {
                 throw new \Exception($this->appendExceptionSuffix($message));
@@ -397,18 +420,31 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
         $paths = $this->getValue(ColumnKeys::CATEGORIES, array(), array($this, 'explode'));
 
         // append the category => product relations found
+        $iterator = 0;
         foreach ($paths as $path) {
+            $iterator++;
             try {
                 // try to load the category for the given path
                 $category = $this->getCategoryByPath($path, $storeViewCode);
                 // resolve the product's categories recursively
                 $this->resolveCategoryIds($category[MemberNames::ENTITY_ID], true, $storeViewCode);
             } catch (\Exception $e) {
-                // query whether or not debug mode has been enabled
-                if ($this->getSubject()->isDebugMode()) {
+                // query whether or not strict mode has been enabled
+                if (!$this->getSubject()->isStrictMode()) {
                     $this->getSubject()
                          ->getSystemLogger()
                          ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                    $this->mergeStatus(
+                        array(
+                            RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                                basename($this->getFilename()) => array(
+                                    $this->getLineNumber() . '-cat-' . $iterator => array(
+                                        ColumnKeys::CATEGORIES => $this->getSubject()->appendExceptionSuffix($e->getMessage())
+                                    )
+                                )
+                            )
+                        )
+                    );
                 } else {
                     throw $e;
                 }
