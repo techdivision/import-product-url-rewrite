@@ -10,6 +10,7 @@
 * Refactoring deprecated classes. see https://github.com/techdivision/import-cli-simple/blob/master/UPGRADE-4.0.0.md
 * Add #PAC-273: Update product 301 URL redirects to forward to active URL rewrite
 * Prepare optimze performance cache
+* PAC-294: Integration strict mode
 
 # 24.1.0
 
