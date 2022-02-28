@@ -431,9 +431,39 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
             } catch (\Exception $e) {
                 // query whether or not strict mode has been enabled
                 if (!$this->getSubject()->isStrictMode()) {
+                    $message = sprintf("Error with category '%s'", $path);
                     $this->getSubject()
                          ->getSystemLogger()
-                         ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                         ->warning($this->getSubject()->appendExceptionSuffix($message));
+                    $this->mergeStatus(
+                        array(
+                            RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                                basename($this->getFilename()) => array(
+                                    $this->getLineNumber() . '-cat-' . $iterator => array(
+                                        ColumnKeys::CATEGORIES => $this->getSubject()->appendExceptionSuffix($message)
+                                    )
+                                )
+                            )
+                        )
+                    );
+                } else {
+                    throw $e;
+                }
+            }
+        }
+
+        // initialize the member varialbe with the category ID
+        // and prepare the attributes for each URL rewrite
+        foreach ($this->productCategoryIds as $this->categoryId) {
+            try {
+                $preparedAttributes =  $this->prepareAttributes($storeViewCode);
+                $this->urlRewrites[$this->categoryId] = $preparedAttributes;
+            } catch (\Exception $e) {
+                // query whether or not strict mode has been enabled
+                if (!$this->getSubject()->isStrictMode()) {
+                    $this->getSubject()
+                        ->getSystemLogger()
+                        ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
                     $this->mergeStatus(
                         array(
                             RegistryKeys::NO_STRICT_VALIDATIONS => array(
@@ -449,12 +479,6 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                     throw $e;
                 }
             }
-        }
-
-        // initialize the member varialbe with the category ID
-        // and prepare the attributes for each URL rewrite
-        foreach ($this->productCategoryIds as $this->categoryId) {
-            $this->urlRewrites[$this->categoryId] = $this->prepareAttributes($storeViewCode);
         }
     }
 
