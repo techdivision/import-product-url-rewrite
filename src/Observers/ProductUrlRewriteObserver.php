@@ -16,6 +16,7 @@ namespace TechDivision\Import\Product\UrlRewrite\Observers;
 
 use TechDivision\Import\Observers\StateDetectorInterface;
 use TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface;
+use TechDivision\Import\Product\Utils\VisibilityKeys;
 use TechDivision\Import\Utils\MemberNames;
 use TechDivision\Import\Utils\StoreViewCodes;
 use TechDivision\Import\Product\UrlRewrite\Utils\ColumnKeys;
@@ -244,7 +245,10 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
      */
     protected function createArtefact(string $sku, string $storeViewCode) : void
     {
-
+        // if the product is NOT visible we don't need url artefact
+        if (!$this->isVisible($sku)) {
+            return;
+        }
         // create the new artefact and return it
         $artefact = $this->newArtefact(
             array(
@@ -279,6 +283,17 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     protected function loadProduct($sku)
     {
         return $this->getProductUrlRewriteProcessor()->loadProduct($sku);
+    }
+
+    /**
+     * Query whether or not the actual entity is visible.
+     *
+     * @return boolean TRUE if the entity is visible, else FALSE
+     */
+    protected function isVisible($sku)
+    {
+        $visibility = $this->getValue(ColumnKeys::VISIBILITY, $this->adminRow[$sku][ColumnKeys::VISIBILITY] ?? null);
+        return $visibility !== null && $this->getSubject()->getVisibilityIdByValue($visibility) == VisibilityKeys::VISIBILITY_NOT_VISIBLE;
     }
 
     /**
