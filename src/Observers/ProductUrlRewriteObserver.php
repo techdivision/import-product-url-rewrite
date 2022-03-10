@@ -293,7 +293,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     protected function isVisible($sku)
     {
         $visibility = $this->getValue(ColumnKeys::VISIBILITY, $this->adminRow[$sku][ColumnKeys::VISIBILITY] ?? null);
-        return $visibility !== null && $this->getSubject()->getVisibilityIdByValue($visibility) == VisibilityKeys::VISIBILITY_NOT_VISIBLE;
+        return $visibility !== null && $this->getSubject()->getVisibilityIdByValue($visibility) !== VisibilityKeys::VISIBILITY_NOT_VISIBLE;
     }
 
     /**
