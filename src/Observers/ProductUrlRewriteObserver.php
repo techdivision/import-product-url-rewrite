@@ -288,6 +288,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     /**
      * Query whether or not the actual entity is visible.
      *
+     * @param string $sku SKU to check on admin row
      * @return boolean TRUE if the entity is visible, else FALSE
      */
     protected function isVisible($sku)
