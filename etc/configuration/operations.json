@@ -105,8 +105,7 @@
                   "observers": [
                     {
                       "import": [
-                        "import_product_url_rewrite.observer.clear.url.rewrite",
-                        "import_product_url_rewrite.observer.url.rewrite"
+                        "import_product_url_rewrite.observer.composite.url.rewrite.base.replace"
                       ]
                     }
                   ]
@@ -131,7 +130,7 @@
                   "observers": [
                     {
                       "import": [
-                        "import_product_url_rewrite.observer.url.rewrite.update"
+                        "import_product_url_rewrite.observer.composite.url.rewrite.base"
                       ]
                     }
                   ]

@@ -11,6 +11,7 @@
 * Add #PAC-273: Update product 301 URL redirects to forward to active URL rewrite
 * Prepare optimze performance cache
 * PAC-294: Integration strict mode
+* PAC-541: Update composer with php Version ">=^7.3"
 
 # 24.1.0
 

@@ -79,6 +79,27 @@
             <argument type="service" id="import_product_url_rewrite.processor.product.url.rewrite"/>
         </service>
 
+        <service id="import_product_url_rewrite.observer.composite.url.rewrite.base" class="TechDivision\Import\Observers\GenericCompositeObserver">
+            <call method="addObserver">
+                <argument id="import_product.observer.normalize.categories" type="service"/>
+            </call>
+            <call method="addObserver">
+                <argument id="import_product_url_rewrite.observer.url.rewrite.update" type="service"/>
+            </call>
+        </service>
+
+        <service id="import_product_url_rewrite.observer.composite.url.rewrite.base.replace" class="TechDivision\Import\Observers\GenericCompositeObserver">
+            <call method="addObserver">
+                <argument id="import_product.observer.normalize.categories" type="service"/>
+            </call>
+            <call method="addObserver">
+                <argument id="import_product_url_rewrite.observer.clear.url.rewrite" type="service"/>
+            </call>
+            <call method="addObserver">
+                <argument id="import_product_url_rewrite.observer.url.rewrite" type="service"/>
+            </call>
+        </service>
+
         <service id="import_product_url_rewrite.subject.url.rewrite" class="TechDivision\Import\Product\UrlRewrite\Subjects\UrlRewriteSubject" shared="false">
             <argument type="service" id="import.processor.registry"/>
             <argument type="service" id="import.generator.core.config.data.uid"/>
