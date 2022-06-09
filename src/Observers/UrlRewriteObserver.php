@@ -652,9 +652,14 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
      */
     protected function prepareRequestPath(array $category)
     {
+        // load the config URL suffix from config.php
+        $configData = $this->getMagentoConfig();
 
         // load the product URL suffix to use
-        $urlSuffix = $this->getSubject()->getCoreConfigData(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, '.html');
+        $productUrlSuffix = isset($configData['product_url_suffix']) ?
+            (!empty($configData['product_url_suffix']) ? '.' . $configData['product_url_suffix'] :$configData['product_url_suffix']) :
+            '.html';
+        $urlSuffix = $this->getSubject()->getCoreConfigData(CoreConfigDataKeys::CATALOG_SEO_PRODUCT_URL_SUFFIX, $productUrlSuffix);
 
         // query whether or not, the category is the root category
         if ($this->isRootCategory($category)) {
@@ -847,5 +852,15 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
     protected function loadProduct($sku)
     {
         return $this->getProductUrlRewriteProcessor()->loadProduct($sku);
+    }
+
+    /**
+     * return's the config data from config.php.
+     * @return array
+     */
+    protected function getMagentoConfig()
+    {
+        $magentoConfig = $this->getSubject()->getConfiguration()->getConfiguration()->getMagentoConfig();
+        return $magentoConfig['system']['default']['catalog']['seo'];
     }
 }
