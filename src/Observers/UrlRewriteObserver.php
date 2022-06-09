@@ -856,7 +856,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
 
     /**
      * return's the config data from config.php.
-     * 
+     *
      * @return array
      */
     protected function getMagentoConfig()
