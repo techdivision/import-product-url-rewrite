@@ -1,3 +1,13 @@
+# 25.0.1
+
+## Bugfixes
+
+* Url DB exception handle over strict-mode and ignore DB exceptions
+
+## Features
+
+* none
+
 # 25.0.0
 
 ## Bugfixes

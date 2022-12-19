@@ -338,11 +338,22 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                         $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
                     }
                 } catch (\Exception $e) {
-                    // query whether or not debug mode has been enabled
-                    if ($this->getSubject()->isDebugMode()) {
+                    if (!$this->getSubject()->isStrictMode()) {
+                        $message = sprintf('URL persist error for SKU "%s"! Detail: %s', $this->getValue(ColumnKeys::SKU), $e->getMessage());
                         $this->getSubject()
-                             ->getSystemLogger()
-                             ->warning($this->getSubject()->appendExceptionSuffix($e->getMessage()));
+                            ->getSystemLogger()
+                            ->warning($this->getSubject()->appendExceptionSuffix($message));
+                        $this->mergeStatus(
+                            array(
+                                RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                                    basename($this->getFilename()) => array(
+                                        $this->getLineNumber() => array(
+                                            ColumnKeys::URL_KEY =>  $message
+                                        )
+                                    )
+                                )
+                            )
+                        );
                     } else {
                         throw $e;
                     }
