@@ -84,6 +84,13 @@ class ProductUrlRewriteProcessor implements ProductUrlRewriteProcessorInterface
     protected $urlRewriteProductCategoryRepository;
 
     /**
+     * The repository to load the product varchar attributes with.
+     *
+     * @var \TechDivision\Import\Product\Repositories\ProductVarcharRepositoryInterface
+     */
+    protected $productVarcharRepository;
+
+    /**
      * Initialize the processor with the necessary assembler and repository instances.
      *
      * @param \TechDivision\Import\Dbal\Connection\ConnectionInterface                                          $connection                          The connection to use
