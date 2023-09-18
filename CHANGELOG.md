@@ -1,3 +1,13 @@
+# 25.0.1
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Update readme file
+
 # 25.0.2
 
 ## Bugfixes
