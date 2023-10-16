@@ -366,6 +366,8 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     /**
      * Generic method to load categories based on different values with serialized return.
      *
+     * @param string $defaultValue The default value
+     *
      * @return mixed|null
      */
     protected function getCategoryPath($defaultValue = null)
