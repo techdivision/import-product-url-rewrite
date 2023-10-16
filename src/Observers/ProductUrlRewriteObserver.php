@@ -120,7 +120,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
 
             // remember the admin row on SKU to be safe on later process
             $this->adminRow[$sku] = array(
-                ColumnKeys::CATEGORIES       => $this->getValue(ColumnKeys::CATEGORIES),
+                ColumnKeys::CATEGORIES       => $this->getCategoryPath(),
                 ColumnKeys::PRODUCT_WEBSITES => $this->getValue(ColumnKeys::PRODUCT_WEBSITES),
                 ColumnKeys::VISIBILITY       => $this->getValue(ColumnKeys::VISIBILITY),
                 ColumnKeys::URL_KEY          => $this->getValue(ColumnKeys::URL_KEY)
@@ -361,5 +361,15 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
     protected function addArtefacts(array $artefacts)
     {
         $this->getSubject()->addArtefacts(ProductUrlRewriteObserver::ARTEFACT_TYPE, $artefacts);
+    }
+
+    /**
+     * Generic method to load categories based on different values with serialized return.
+     *
+     * @return mixed|null
+     */
+    protected function getCategoryPath($defaultValue = null)
+    {
+        return $this->getValue($defaultValue);
     }
 }

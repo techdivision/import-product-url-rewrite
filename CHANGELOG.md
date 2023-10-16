@@ -1,3 +1,9 @@
+# 25.0.4
+
+## Features
+
+* Add a generic method `getCategoryByValue` to load categories based on different values with serialized return.
+
 # 25.0.3
 
 ## Bugfixes
