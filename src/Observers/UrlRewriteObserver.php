@@ -315,7 +315,29 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                 try {
                     // persist the URL rewrite
                     if ($this->hasChanges($urlRewrite)) {
-                        $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
+                        try {
+                            $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
+                        } catch (\PDOException $pdoe) {
+                            $message = sprintf('%s with Urlrewrite Data %s "', $pdoe->getMessage(), $urlRewrite);
+                            if (!$this->getSubject()->isStrictMode()) {
+                                $this->getSubject()
+                                    ->getSystemLogger()
+                                    ->warning($this->getSubject()->appendExceptionSuffix($message));
+                                $this->mergeStatus(
+                                    array(
+                                        RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                                            basename($this->getFilename()) => array(
+                                                $this->getLineNumber() => array(
+                                                    ColumnKeys::URL_KEY =>  $message
+                                                )
+                                            )
+                                        )
+                                    )
+                                );
+                            } else {
+                                throw new \PDOException($pdoe);
+                            }
+                        }
                     } else {
                         $this->urlRewriteId = $urlRewrite[MemberNames::URL_REWRITE_ID];
                     }
@@ -335,7 +357,29 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
 
                     // persist the URL rewrite product category relation
                     if ($this->hasChanges($urlRewriteProductCategory)) {
-                        $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+                        try {
+                            $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
+                        } catch (\PDOException $pdoe) {
+                            $message = sprintf('%s with Urlrewrite Data %s "', $pdoe->getMessage(), $urlRewriteProductCategory);
+                            if (!$this->getSubject()->isStrictMode()) {
+                                $this->getSubject()
+                                    ->getSystemLogger()
+                                    ->warning($this->getSubject()->appendExceptionSuffix($message));
+                                $this->mergeStatus(
+                                    array(
+                                        RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                                            basename($this->getFilename()) => array(
+                                                $this->getLineNumber() => array(
+                                                    ColumnKeys::URL_KEY =>  $message
+                                                )
+                                            )
+                                        )
+                                    )
+                                );
+                            } else {
+                                throw new \PDOException($pdoe);
+                            }
+                        }
                     }
                 } catch (\Exception $e) {
                     if (!$this->getSubject()->isStrictMode()) {
