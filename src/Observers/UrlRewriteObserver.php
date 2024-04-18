@@ -318,7 +318,16 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                         try {
                             $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
                         } catch (\PDOException $pdoe) {
-                            $message = sprintf('%s with Urlrewrite Data %s "', $pdoe->getMessage(), $urlRewrite);
+                            $message = sprintf(
+                                'Is a PDO exception is thrown: with Urlrewrite Data \\n
+                            ("entity_id": "%s" && "request_path": "%s" && "target_path": "%s" && "entity_type": "%s" && "redirect_type": "%s" && "store_id": "%s")',
+                                $urlRewriteProductCategory[MemberNames::ENTITY_ID],
+                                $urlRewriteProductCategory[MemberNames::REQUEST_PATH],
+                                $urlRewriteProductCategory[MemberNames::TARGET_PATH],
+                                $urlRewriteProductCategory[MemberNames::ENTITY_TYPE],
+                                $urlRewriteProductCategory[MemberNames::REDIRECT_TYPE],
+                                $urlRewriteProductCategory[MemberNames::STORE_ID]
+                            );
                             if (!$this->getSubject()->isStrictMode()) {
                                 $this->getSubject()
                                     ->getSystemLogger()
@@ -360,7 +369,16 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                         try {
                             $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
                         } catch (\PDOException $pdoe) {
-                            $message = sprintf('%s with Urlrewrite Data %s "', $pdoe->getMessage(), $urlRewriteProductCategory);
+                            $message = sprintf(
+                                'Is a PDO exception is thrown: with Urlrewrite Data \\n
+                            ("entity_id": "%s" && "request_path": "%s" && "target_path": "%s" && "entity_type": "%s" && "redirect_type": "%s" && "store_id": "%s")',
+                                $urlRewriteProductCategory[MemberNames::ENTITY_ID],
+                                $urlRewriteProductCategory[MemberNames::REQUEST_PATH],
+                                $urlRewriteProductCategory[MemberNames::TARGET_PATH],
+                                $urlRewriteProductCategory[MemberNames::ENTITY_TYPE],
+                                $urlRewriteProductCategory[MemberNames::REDIRECT_TYPE],
+                                $urlRewriteProductCategory[MemberNames::STORE_ID]
+                            );
                             if (!$this->getSubject()->isStrictMode()) {
                                 $this->getSubject()
                                     ->getSystemLogger()
