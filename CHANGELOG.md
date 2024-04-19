@@ -1,3 +1,10 @@
+# 25.0.5
+
+## Bugfixes
+
+* Handle Duplicate UrlKey Exception With StrictMode(METSUP-68):
+  * to make the error message for URL conflicts in the import contain more and more precise data than is currently the case 
+
 # 25.0.4
 
 ## Features

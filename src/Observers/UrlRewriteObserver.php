@@ -318,34 +318,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                         try {
                             $this->urlRewriteId = $this->persistUrlRewrite($urlRewrite);
                         } catch (\PDOException $pdoe) {
-                            $message = sprintf(
-                                'Is a PDO exception is thrown: with Urlrewrite Data \\n
-                            ("entity_id": "%s" && "request_path": "%s" && "target_path": "%s" && "entity_type": "%s" && "redirect_type": "%s" && "store_id": "%s")',
-                                $urlRewriteProductCategory[MemberNames::ENTITY_ID],
-                                $urlRewriteProductCategory[MemberNames::REQUEST_PATH],
-                                $urlRewriteProductCategory[MemberNames::TARGET_PATH],
-                                $urlRewriteProductCategory[MemberNames::ENTITY_TYPE],
-                                $urlRewriteProductCategory[MemberNames::REDIRECT_TYPE],
-                                $urlRewriteProductCategory[MemberNames::STORE_ID]
-                            );
-                            if (!$this->getSubject()->isStrictMode()) {
-                                $this->getSubject()
-                                    ->getSystemLogger()
-                                    ->warning($this->getSubject()->appendExceptionSuffix($message));
-                                $this->mergeStatus(
-                                    array(
-                                        RegistryKeys::NO_STRICT_VALIDATIONS => array(
-                                            basename($this->getFilename()) => array(
-                                                $this->getLineNumber() => array(
-                                                    ColumnKeys::URL_KEY =>  $message
-                                                )
-                                            )
-                                        )
-                                    )
-                                );
-                            } else {
-                                throw new \PDOException($pdoe);
-                            }
+                            $this->handleDuplicateUrlKeyExceptionWithStrictMode($urlRewrite, $pdoe);
                         }
                     } else {
                         $this->urlRewriteId = $urlRewrite[MemberNames::URL_REWRITE_ID];
@@ -369,34 +342,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                         try {
                             $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
                         } catch (\PDOException $pdoe) {
-                            $message = sprintf(
-                                'Is a PDO exception is thrown: with Urlrewrite Data \\n
-                            ("entity_id": "%s" && "request_path": "%s" && "target_path": "%s" && "entity_type": "%s" && "redirect_type": "%s" && "store_id": "%s")',
-                                $urlRewriteProductCategory[MemberNames::ENTITY_ID],
-                                $urlRewriteProductCategory[MemberNames::REQUEST_PATH],
-                                $urlRewriteProductCategory[MemberNames::TARGET_PATH],
-                                $urlRewriteProductCategory[MemberNames::ENTITY_TYPE],
-                                $urlRewriteProductCategory[MemberNames::REDIRECT_TYPE],
-                                $urlRewriteProductCategory[MemberNames::STORE_ID]
-                            );
-                            if (!$this->getSubject()->isStrictMode()) {
-                                $this->getSubject()
-                                    ->getSystemLogger()
-                                    ->warning($this->getSubject()->appendExceptionSuffix($message));
-                                $this->mergeStatus(
-                                    array(
-                                        RegistryKeys::NO_STRICT_VALIDATIONS => array(
-                                            basename($this->getFilename()) => array(
-                                                $this->getLineNumber() => array(
-                                                    ColumnKeys::URL_KEY =>  $message
-                                                )
-                                            )
-                                        )
-                                    )
-                                );
-                            } else {
-                                throw new \PDOException($pdoe);
-                            }
+                           $this->handleDuplicateUrlKeyExceptionWithStrictMode($urlRewriteProductCategory, $pdoe);
                         }
                     }
                 } catch (\Exception $e) {
@@ -920,5 +866,43 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
     protected function loadProduct($sku)
     {
         return $this->getProductUrlRewriteProcessor()->loadProduct($sku);
+    }
+
+    /**
+     * @param array $urlRewriteData
+     * @param \PDOException|\Exception $pdoe
+     * @return void
+     * @throws \Exception
+     */
+    public function handleDuplicateUrlKeyExceptionWithStrictMode(array $urlRewriteData, \PDOException|\Exception $pdoe): void
+    {
+        $message = sprintf(
+            'Is a "Duplicate entry" PDO exception is thrown: with Urlrewrite Data \\n
+                            ("entity_id": "%s" && "request_path": "%s" && "target_path": "%s" && "entity_type": "%s" && "redirect_type": "%s" && "store_id": "%s")',
+            $urlRewriteData[MemberNames::ENTITY_ID],
+            $urlRewriteData[MemberNames::REQUEST_PATH],
+            $urlRewriteData[MemberNames::TARGET_PATH],
+            $urlRewriteData[MemberNames::ENTITY_TYPE],
+            $urlRewriteData[MemberNames::REDIRECT_TYPE],
+            $urlRewriteData[MemberNames::STORE_ID]
+        );
+        if (!$this->getSubject()->isStrictMode()) {
+            $this->getSubject()
+                ->getSystemLogger()
+                ->warning($this->getSubject()->appendExceptionSuffix($message));
+            $this->mergeStatus(
+                array(
+                    RegistryKeys::NO_STRICT_VALIDATIONS => array(
+                        basename($this->getFilename()) => array(
+                            $this->getLineNumber() => array(
+                                ColumnKeys::URL_KEY => $message
+                            )
+                        )
+                    )
+                )
+            );
+        } else {
+            throw new \PDOException($pdoe);
+        }
     }
 }
