@@ -342,7 +342,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
                         try {
                             $this->persistUrlRewriteProductCategory($urlRewriteProductCategory);
                         } catch (\PDOException $pdoe) {
-                           $this->handleDuplicateUrlKeyExceptionWithStrictMode($urlRewriteProductCategory, $pdoe);
+                            $this->handleDuplicateUrlKeyExceptionWithStrictMode($urlRewriteProductCategory, $pdoe);
                         }
                     }
                 } catch (\Exception $e) {
@@ -869,12 +869,12 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
     }
 
     /**
-     * @param array $urlRewriteData
-     * @param \PDOException|\Exception $pdoe
+     * @param array         $urlRewriteData data of urlrewrite
+     * @param \PDOException $pdoe pdo exception
      * @return void
-     * @throws \Exception
+     * @throws \PDOException
      */
-    public function handleDuplicateUrlKeyExceptionWithStrictMode(array $urlRewriteData, \PDOException|\Exception $pdoe): void
+    public function handleDuplicateUrlKeyExceptionWithStrictMode(array $urlRewriteData, \PDOException $pdoe): void
     {
         $message = sprintf(
             'Is a "Duplicate entry" PDO exception is thrown: with Urlrewrite Data \\n
