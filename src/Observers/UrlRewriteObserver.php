@@ -870,7 +870,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
 
     /**
      * @param array         $urlRewriteData data of urlrewrite
-     * @param \PDOException $pdoe pdo exception
+     * @param \PDOException $pdoe           pdo exception
      * @return void
      * @throws \PDOException
      */
