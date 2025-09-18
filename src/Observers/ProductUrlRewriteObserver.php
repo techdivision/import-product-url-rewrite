@@ -70,7 +70,7 @@ class ProductUrlRewriteObserver extends AbstractProductImportObserver
      */
     public function __construct(
         ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor,
-        StateDetectorInterface $stateDetector = null
+        ?StateDetectorInterface $stateDetector = null
     ) {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
         parent::__construct($stateDetector);
