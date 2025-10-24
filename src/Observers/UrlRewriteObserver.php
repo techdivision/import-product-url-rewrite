@@ -112,11 +112,11 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
      * Initialize the observer with the passed product URL rewrite processor instance.
      *
      * @param \TechDivision\Import\Product\UrlRewrite\Services\ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor The product URL rewrite processor instance
-     * @param \TechDivision\Import\Observers\StateDetectorInterface                                $stateDetector              The state detector instance
+     * @param \TechDivision\Import\Observers\StateDetectorInterface|null $stateDetector              The state detector instance
      */
     public function __construct(
         ProductUrlRewriteProcessorInterface $productUrlRewriteProcessor,
-        StateDetectorInterface $stateDetector = null
+        ?StateDetectorInterface $stateDetector = null
     ) {
         $this->productUrlRewriteProcessor = $productUrlRewriteProcessor;
 

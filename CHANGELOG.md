@@ -1,3 +1,11 @@
+# 26.1.0
+
+## Features
+
+### PHP 8.4 Compatibility
+
+* Add PHP 8.4 support
+
 # 26.0.0
 
 ## Features
