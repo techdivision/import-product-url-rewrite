@@ -124,7 +124,7 @@ class UrlRewriteSubject extends AbstractProductSubject
 
         // query whether or not, the requested store is available
         if (isset($this->stores[$storeViewCode])) {
-            return 1 === (integer) $this->stores[$storeViewCode][MemberNames::IS_ACTIVE];
+            return 1 === (int)$this->stores[$storeViewCode][MemberNames::IS_ACTIVE];
         }
 
         // throw an exception, if not

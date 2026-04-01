@@ -547,7 +547,7 @@ class UrlRewriteObserver extends AbstractProductImportObserver implements Observ
         }
 
         // create relation if the category is top level or has the anchor flag set
-        if ($topLevel || (integer) $category[MemberNames::IS_ANCHOR] === 1) {
+        if ($topLevel || (int)$category[MemberNames::IS_ANCHOR] === 1) {
             $this->productCategoryIds[] = $category[MemberNames::ENTITY_ID];
             return;
         }
