@@ -252,7 +252,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
         $metadata = $this->getMetadata($attr);
 
         // return the category ID from the metadata
-        return (integer) $metadata[UrlRewriteObserver::CATEGORY_ID];
+        return (int)$metadata[UrlRewriteObserver::CATEGORY_ID];
     }
 
     /**
@@ -303,7 +303,7 @@ class UrlRewriteUpdateObserver extends UrlRewriteObserver
 
         // if not, append the ID of the root category
         $rootCategory = $this->getRootCategory();
-        $metadata[UrlRewriteObserver::CATEGORY_ID] = (integer) $rootCategory[MemberNames::ENTITY_ID];
+        $metadata[UrlRewriteObserver::CATEGORY_ID] = (int)$rootCategory[MemberNames::ENTITY_ID];
 
         // and return the metadata
         return $metadata;
